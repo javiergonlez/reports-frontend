@@ -13,4 +13,8 @@ export default defineConfig({
       localsConvention: 'camelCase',
     },
   },
+  define: {
+    // Make environment variables available to the client
+    'process.env': {}
+  }
 })

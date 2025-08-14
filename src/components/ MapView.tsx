@@ -28,8 +28,6 @@ import type {
 //---------------------------------------------------------------------------------------------------------------------------
 
 const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProps): React.JSX.Element => {
-    // TODO: HACER TYPE-SAFE, AJUSTAR DETALLES
-
     const [labels, setLabels] = useState<LabelData[]>([]);
 
     useEffect((): void => {
@@ -201,6 +199,11 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
 }
 
 const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps): React.JSX.Element => {
+    const STADIA_API_KEY: string | undefined = import.meta.env.VITE_STADIA_KEY;
+    if (!STADIA_API_KEY) {
+        console.warn('MapView: VITE_STADIA_KEY environment variable is not set. Using OpenStreetMap as fallback.');
+    }
+    
     const center: LatLngExpression = [-34.5896, -58.6276];
 
     const { data, error, fetchS3Data } = useS3DataStore();
@@ -256,11 +259,11 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
             const filteredData = billingData.filter(row => {
                 // CORREGIDO: usar patient_department en lugar de localidad para ser consistente con processBillingData
                 if (!row.patient_department) return false;
-                return selectedLocalities.some(selected => 
+                return selectedLocalities.some(selected =>
                     normalizeName(selected) === normalizeName(row.patient_department || '')
                 );
             });
-            
+
             console.log('🔍 MapView - Datos filtrados:', {
                 selectedLocalities,
                 filteredDataLength: filteredData.length,
@@ -269,7 +272,7 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
                     total_discounted_price: row.total_discounted_price
                 }))
             });
-            
+
             const { sums: newSums, minMax: newMinMax } = processBillingData(filteredData);
             console.log('🔍 MapView - Sums generados:', newSums);
             setSums(newSums);
@@ -370,10 +373,18 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
             zoom={11}
             style={{ height: "88%", width: "100%", borderRadius: '1.5rem' }}
         >
-            <TileLayer
-                url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png"
-                attribution="&copy; <a href='https://stadiamaps.com/'>Stadia Maps</a>"
-            />
+            {STADIA_API_KEY ? (
+                <TileLayer
+                    url={`https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`}
+                    attribution="&copy; <a href='https://stadiamaps.com/'>Stadia Maps</a>"
+                />
+            ) : (
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+                />
+            )}
+
 
             {geojson && (() => {
                 const filteredFeatures = geojson.features.filter(
@@ -447,7 +458,7 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
 
                     return true;
                 });
-                
+
                 return (
                     <GeoJSON
                         data={{
