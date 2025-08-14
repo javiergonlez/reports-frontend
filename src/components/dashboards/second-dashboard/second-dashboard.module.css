@@ -1,0 +1,292 @@
+:root {
+    --color-white: #ffffff;
+    --color-gray: #333;
+    --color-red: #ff0000;
+}
+
+.parent {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 0.5rem;
+    height: 70dvh;
+}
+
+.grid-item {
+    min-height: 2rem;
+    color: #fafafa;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.metric-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.8rem;
+    min-width: 180px;
+    padding: 1rem;
+}
+
+.metric-card-left {
+    align-items: flex-start;
+}
+
+.metric-card-center {
+    align-items: center;
+}
+
+.text {
+    line-height: 1.1;
+    font-style: italic;
+    color: var(--color-gray);
+    font-size: 1.4rem;
+    text-align: center;
+}
+
+.value {
+    color: var(--color-white);
+    font-size: 2.1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.text-sm {
+    line-height: 1.1;
+    font-style: italic;
+    color: var(--color-gray);
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.value-sm {
+    color: var(--color-white);
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.cost {
+    color: var(--color-red);
+    font-size: 2.1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.div1 {
+    grid-area: 1 / 1 / 2 / 3;
+    display: flex;
+    gap: 0.5rem;
+    background: linear-gradient(45deg,
+            #5aa8e7 0%,
+            #78bef4 20%,
+            #91ccf3 40%,
+            #a3d9f3 60%,
+            #dcf1f8 80%,
+            #fcffff 100%);
+    border: 3px solid #4dd0e1;
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+}
+
+.div2 {
+    grid-area: 1 / 3 / 2 / 5;
+    display: flex;
+    gap: 0.5rem;
+    background: linear-gradient(45deg,
+            #dd6868 0%,
+            #ef8b8b 25%,
+            #f09696 50%,
+            #f7aeae 70%,
+            #ffcaca 85%,
+            #f8dbdb 95%);
+    border: 3px solid #ed8e8e;
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+}
+
+.div3 {
+    grid-area: 1 / 5 / 2 / 7;
+    display: flex;
+    gap: 0.5rem;
+    border: 3px solid #d37fc1;
+    background: linear-gradient(45deg, rgba(223, 165, 210, 1) 11%, rgba(238, 183, 217, 1) 30%, rgba(252, 191, 208, 1) 67%, rgba(255, 227, 235, 1) 91%);
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+}
+
+.div4 {
+    grid-area: 1 / 7 / 2 / 9;
+    /* display: flex; */
+    gap: 0.5rem;
+    border: 3px solid #81c784;
+    background: linear-gradient(45deg,
+            #4caf50 0%,
+            #66bb6a 20%,
+            #81c784 40%,
+            #a5d6a7 60%,
+            #e4f9e5 80%,
+            #ffffff 100%);
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+}
+
+.div5 {
+    grid-area: 2 / 1 / 3 / 4;
+    border: 3px solid rgba(88, 152, 232, 0.9);
+    background: linear-gradient(90deg, rgba(44, 124, 221, 1) 26%, rgba(173, 204, 242, 1) 65%, rgba(237, 237, 237, 1) 88%);
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+    border-radius: .8rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+}
+
+.div6 {
+    grid-area: 3 / 1 / 4 / 4;
+    border: 3px solid #81c784;
+    background: linear-gradient(90deg,
+            #4caf50 0%,
+            #66bb6a 20%,
+            #81c784 40%,
+            #a5d6a7 60%,
+            #e4f9e5 80%,
+            #ffffff 100%);
+    border-radius: 0.8rem;
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+}
+
+.div7 {
+    grid-area: 2 / 4 / 5 / 9;
+    border: 3px solid #4dd0e1;
+    overflow: hidden;
+    background-color: #E7E7E7;
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+    border-radius: 16px;
+    height: 100%;
+}
+
+.div8 {
+    grid-area: 4 / 1 / 5 / 4;
+    background: linear-gradient(45deg,
+            #5aa8e7 0%,
+            #78bef4 20%,
+            #91ccf3 40%,
+            #a3d9f3 60%,
+            #dcf1f8 80%,
+            #fcffff 100%);
+    border: 3px solid #4dd0e1;
+    box-shadow: rgba(149, 157, 165, 0.4) 0px 10px 12px;
+    border-radius: .8rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+}
+
+.table-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-size: 1.2rem;
+    overflow-y: auto;
+}
+
+.table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(244, 244, 244, 0.7);
+    border-radius: 10px;
+    height: 100%;
+    position: relative;
+}
+
+.table-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: white;
+    border-top: 2px solid #ddd;
+    margin-top: auto;
+}
+
+.table-footer table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table-footer td {
+    padding: 8px;
+    height: 25px;
+    width: 25%;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 🔹 Estilos para la tabla */
+.striped-table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.striped-table th,
+.striped-table td {
+    padding: 8px;
+    border: 1px solid #ccc;
+    height: 25px;
+    width: 25%;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 🔹 Estilos para el tfoot sticky */
+.striped-table tfoot {
+    position: sticky;
+    bottom: 0;
+    background-color: #9f9f9fff;
+    z-index: 10;
+
+}
+
+.striped-table tfoot tr {
+    font-weight: bold;
+    color: #141414;
+}
+
+/* 🔹 Estilos para el thead sticky */
+.striped-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: #91b6f2ff;
+}
+
+@media(max-width: 1400px) {
+    .text {
+        font-size: 1.2rem;
+    }
+
+    .value {
+        font-size: 1.2rem;
+    }
+
+    .text-sm {
+        font-size: 1.1rem;
+    }
+
+    .value-sm {
+        font-size: 1.8rem;
+    }
+
+    .cost {
+        font-size: 1.5rem;
+    }
+}

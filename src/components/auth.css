@@ -1,0 +1,139 @@
+:root {
+  --primary-color: #006699;
+  --secondary-color: #B9E7FE;
+}
+
+.auth-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: linear-gradient(rgb(255, 255, 255) 0%, rgb(234, 234, 234) 100%);
+}
+
+.auth-left-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.auth-right-section {
+  flex: 0 62%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  border-radius: 5.5rem 1rem 1rem 5.5rem;
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 396px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-form {
+  width: 100%;
+}
+
+.auth-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 32px;
+}
+
+.auth-input {
+  border-radius: 8px;
+  border: 1px solid #E9ECEF;
+  font-size: 0.9rem;
+  padding: 1.2rem;
+  transition: all 0.2s ease;
+  box-shadow: rgba(189, 195, 197, 0.48) 2px 2px 4px 0px inset;
+}
+
+.auth-input[data-error="true"] {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 1px #dc3545;
+}
+
+.auth-label {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--primary-color);
+}
+
+.auth-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.auth-button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.auth-submit-button {
+  display: flex;
+  justify-content: center;
+  background-color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.4rem;
+  width: 100%;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.auth-submit-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.auth-error-container {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-error-message {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 8px;
+  color: #dc3545;
+}
+
+.auth-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+  }
+  
+  .auth-right-section {
+    display: none;
+  }
+  
+  .auth-left-section {
+    padding: 1rem;
+  }
+  
+  .auth-form-container {
+    max-width: 100%;
+  }
+} 
