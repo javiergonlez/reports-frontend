@@ -14,7 +14,7 @@ import type { User } from './types';
 
 const App = (): React.JSX.Element => {
   const { user }: { user: User | null } = useAuth();
-  const { data, isLoading, error, fetchS3Data } = useS3Data(false); // autoFetch = false, NO fetch automático
+  const { isLoading, error, fetchS3Data } = useS3Data(false); // autoFetch = false
 
   // Verificar expiración del token
   useTokenExpiration();

@@ -337,8 +337,8 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
 
     // Función para estilizar features
     const styleFeature = useCallback((feature: Feature<Geometry, GeoJsonProperties> | undefined): Record<string, any> => {
-        return getFeatureStyle(feature, sums, minMax, selectedLocalities);
-    }, [sums, minMax, selectedLocalities]);
+        return getFeatureStyle(feature, sums, minMax);
+    }, [sums, minMax]);
 
 
 

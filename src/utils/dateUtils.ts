@@ -4,14 +4,7 @@ import type { DateRange } from '../types';
 
 //---------------------------------------------------------------------------------------------------------------------------
 
-const formatNumber = (numero: number): string => {
-  const isInteger: boolean = Number.isInteger(numero);
-  const opciones: Intl.NumberFormatOptions = isInteger
-    ? { minimumFractionDigits: 0, maximumFractionDigits: 0 }
-    : { minimumFractionDigits: 0, maximumFractionDigits: 2 };
 
-  return new Intl.NumberFormat('es-AR', opciones).format(numero);
-}
 
 // Nueva función que normaliza números usando puntos para miles y comas para decimales
 const formatNumberNormalized = (numero: number): string => {
@@ -94,4 +87,4 @@ const filterDataByDateRange = <T extends { Fecha?: string }>(
   return filtered;
 }; 
 
-export { formatNumber, formatNumberNormalized, formatCurrencyNormalized, parseDate, filterDataByDateRange };
+export { formatNumberNormalized, formatCurrencyNormalized, parseDate, filterDataByDateRange };

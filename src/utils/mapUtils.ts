@@ -60,10 +60,8 @@ const localityNameMapping: Record<string, string[]> = {
 const findBestMatch = (targetName: string, availableNames: string[]): string | null => {
     const normalizedTarget: string = normalizeName(targetName);
 
-
-
     // Buscar coincidencia exacta primero
-    const exactMatch = availableNames.find(name => normalizeName(name) === normalizedTarget);
+    const exactMatch: string | undefined = availableNames.find((name: string) => normalizeName(name) === normalizedTarget);
     if (exactMatch) {
         return exactMatch;
     }
@@ -72,8 +70,8 @@ const findBestMatch = (targetName: string, availableNames: string[]): string | n
     for (const [filterName, mapNames] of Object.entries(localityNameMapping)) {
         if (mapNames.includes(normalizedTarget)) {
             // Verificar si el nombre del filtro está en las localidades seleccionadas
-            const filterNameNormalized = normalizeName(filterName);
-            const match = availableNames.find(name => normalizeName(name) === filterNameNormalized);
+            const filterNameNormalized: string = normalizeName(filterName);
+            const match: string | undefined = availableNames.find((name: string) => normalizeName(name) === filterNameNormalized);
             if (match) {
                 return match;
             }
@@ -231,13 +229,13 @@ export const extractMainLocalityName = (fullName: string): string => {
 
 // Función para determinar si es una entidad administrativa pura
 const isPureAdministrativeEntity = (name: string): boolean => {
-    const pureAdministrativeEntities = [
+    const pureAdministrativeEntities: string[] = [
         'Buenos Aires', 'Provincia de Buenos Aires', 'Ciudad Autónoma de Buenos Aires',
         'Provincia', 'Province', 'State', 'Departamento', 'Department'
     ];
 
     // Verificar si el nombre es exactamente una entidad administrativa pura
-    return pureAdministrativeEntities.some(entity =>
+    return pureAdministrativeEntities.some((entity: string): boolean =>
         name.toLowerCase().trim() === entity.toLowerCase()
     );
 };
@@ -246,10 +244,11 @@ const isPureAdministrativeEntity = (name: string): boolean => {
 const paintedLocalities = new Set<string>();
 
 const getFeatureStyle = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     feature: any,
     sums: SumsByLocality,
-    minMax: MinMaxValues,
-    selectedLocalities?: string[]
+    minMax: MinMaxValues
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Record<string, any> => {
     if (!feature) return {};
 
@@ -299,7 +298,7 @@ const getFeatureStyle = (
         'Jujuy', 'Tucumán', 'Neuquén', 'Salta', 'Formosa'
     ];
 
-    const isArgentineProvince = argentineProvinces.some(province =>
+    const isArgentineProvince = argentineProvinces.some((province: string): boolean =>
         mainLocalityName.toLowerCase().includes(province.toLowerCase())
     );
 
