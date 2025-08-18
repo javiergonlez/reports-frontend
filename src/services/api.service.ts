@@ -36,7 +36,7 @@ const handleResponse = async (response: Response): Promise<Response> => {
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}): Promise<Response> => {
   if (isTokenExpired()) {
-    
+
     clearAuth();
 
     // Redirigir al login si estamos en el navegador
@@ -59,46 +59,37 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}): Promise<Re
 };
 
 const getDashboardFiles = async (): Promise<DashboardData> => {
-  try {
-    
 
-    const response: Response = await fetchWithAuth(`${API_URL}/dashboard/file`, {
-      method: 'GET',
-    });
+  const response: Response = await fetchWithAuth(`${API_URL}/dashboard/file`, {
+    method: 'GET',
+  });
 
-    if (!response.ok) {
-      const errorText: string = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
-
-    const data: DashboardData = await response.json();
-    
-
-    return data;
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    const errorText: string = await response.text();
+    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
   }
+
+  const data: DashboardData = await response.json();
+
+
+  return data;
 };
 
 const getS3DataJson = async (): Promise<S3Response> => {
-  try {
-    
 
-    const response: Response = await fetchWithAuth(`${API_URL}/dashboard/data`, {
-      method: 'GET',
-    });
 
-    if (!response.ok) {
-      const errorText: string = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
+  const response: Response = await fetchWithAuth(`${API_URL}/dashboard/data`, {
+    method: 'GET',
+  });
 
-    const data: S3Response = await response.json();
-
-    return data;
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    const errorText: string = await response.text();
+    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
   }
-};
-export { getDashboardFiles, getS3DataJson };
 
+  const data: S3Response = await response.json();
+
+  return data;
+};
+
+export { getDashboardFiles, getS3DataJson };

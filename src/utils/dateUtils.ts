@@ -5,19 +5,15 @@ import type { DateRange } from '../types';
 //---------------------------------------------------------------------------------------------------------------------------
 
 
-
-// Nueva función que normaliza números usando puntos para miles y comas para decimales
 const formatNumberNormalized = (numero: number): string => {
   const isInteger: boolean = Number.isInteger(numero);
   
   if (isInteger) {
-    // Para números enteros, usar puntos para separar miles
     return numero.toLocaleString('es-ES', { 
       minimumFractionDigits: 0, 
       maximumFractionDigits: 0 
     });
   } else {
-    // Para números decimales, usar puntos para miles y comas para decimales
     return numero.toLocaleString('es-ES', { 
       minimumFractionDigits: 2, 
       maximumFractionDigits: 2 
@@ -25,12 +21,10 @@ const formatNumberNormalized = (numero: number): string => {
   }
 }
 
-// Función para formatear monedas con el formato normalizado
 const formatCurrencyNormalized = (amount: number): string => {
   const formatted: string = formatNumberNormalized(amount);
   return `$${formatted}`;
 }
-
 
 const parseDate = (dateString: string): Date | null => {
   if (!dateString) return null;
