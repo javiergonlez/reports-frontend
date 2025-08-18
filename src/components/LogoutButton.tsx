@@ -16,7 +16,6 @@ const LogoutButton = (): React.JSX.Element => {
       await logout();
       navigate('/login');
     } catch (error) {
-      console.error('Error en logout:', error);
       // aun asi redirigir a login
       navigate('/login');
     }

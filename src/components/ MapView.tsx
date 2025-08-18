@@ -203,7 +203,7 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
     const mapConfig = getActiveMapConfig();
     
     if (!mapConfig.isActive) {
-        console.info('MapView: Using OpenStreetMap as map provider (Stadia Maps API key not configured)');
+        // Using OpenStreetMap as map provider (Stadia Maps API key not configured)
     }
     
     const center: LatLngExpression = [-34.5896, -58.6276];
@@ -228,8 +228,8 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
             .then((data: FeatureCollection<Geometry, GeoJsonProperties>): void => {
                 setGeojson(data);
             })
-            .catch((error: Error): void => {
-                console.error('Error cargando GeoJSON:', error);
+            .catch((): void => {
+                // Error cargando GeoJSON
             });
     }, []);
 

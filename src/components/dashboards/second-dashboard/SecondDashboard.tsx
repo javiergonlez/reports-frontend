@@ -209,7 +209,6 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
 
       setMedicamentos(result);
     } catch (error) {
-      console.error('Error procesando medicamentos:', error);
       setMedicamentos([]);
     } finally {
       setIsLoading(false);
@@ -290,7 +289,6 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
       ]);
 
     } catch (error) {
-      console.error('Error procesando métricas abajo:', error);
       setMetrics((prev: SecondDashboardMetrics): SecondDashboardMetrics => ({
         ...prev,
         medicosRegistrados: 0,
@@ -434,7 +432,6 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
       setVariationRecetasConDesvio(variationRecetasConDesvio);
 
     } catch (error) {
-      console.error('Error procesando métricas:', error);
       setMetrics(prev => ({
         ...prev,
         recetasAuditadas: 0,
@@ -500,7 +497,6 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
       }));
 
     } catch (error) {
-      console.error('Error procesando valores-recetas:', error);
       setMetrics((prev: SecondDashboardMetrics) => ({
         ...prev,
         costoPromedioReceta: 0,

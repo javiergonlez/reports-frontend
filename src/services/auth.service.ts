@@ -51,7 +51,7 @@ const logout = async (): Promise<void> => {
       });
     }
   } catch (error) {
-    console.error('Error en logout:', error);
+    // Error en logout
   } finally {
     // Limpiar localStorage
     localStorage.removeItem('user');

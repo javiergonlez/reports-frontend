@@ -39,7 +39,6 @@ const useDate = (): {
         // setFilteredMedications(filteredMedicamentos);
         setFilteredMedications([]);
       } catch (error) {
-        console.error('Error loading medications:', error);
         setFilteredMedications([]);
       } finally {
         setIsLoading(false);

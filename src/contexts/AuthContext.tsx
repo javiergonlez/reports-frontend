@@ -51,7 +51,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setIsAuth(false);
         }
       } catch (error) {
-        console.error('Error al inicializar autenticación:', error);
         clearAuth();
         setUser(null);
         setIsAuth(false);
@@ -73,7 +72,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Hacer fetch inicial de datos después del login exitoso
       await fetchS3Data();
     } catch (error) {
-      console.error(error);
       throw error;
     } finally {
       setIsLoading(false)
@@ -87,7 +85,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setIsAuth(false);
     } catch (error) {
-      console.error('Error en logout:', error);
       setUser(null);
       setIsAuth(false);
       throw error;

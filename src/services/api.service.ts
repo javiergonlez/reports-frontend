@@ -68,7 +68,6 @@ const getDashboardFiles = async (): Promise<DashboardData> => {
 
     if (!response.ok) {
       const errorText: string = await response.text();
-      console.error('Error en la respuesta:', errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
@@ -77,7 +76,6 @@ const getDashboardFiles = async (): Promise<DashboardData> => {
 
     return data;
   } catch (error) {
-    console.error('Error al obtener datos del dashboard:', error);
     throw error;
   }
 };
@@ -92,7 +90,6 @@ const getS3DataJson = async (): Promise<S3Response> => {
 
     if (!response.ok) {
       const errorText: string = await response.text();
-      console.error('Error en la respuesta:', errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
@@ -100,7 +97,6 @@ const getS3DataJson = async (): Promise<S3Response> => {
 
     return data;
   } catch (error) {
-    console.error('Error al obtener datos S3:', error);
     throw error;
   }
 };
