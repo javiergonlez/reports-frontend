@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { CsvRow } from '../types';
+import type { CsvRow, FilterItem } from '../types';
 
 interface DNIFilterState {
   selectedDNIs: string[];
-  dniData: Array<{ value: string; label: string; gasto: string; gastoOriginal: number }>;
+  dniData: FilterItem[];
   setSelectedDNIs: (dnis: string[]) => void;
   updateDNIData: (billingData: CsvRow[], selectedLocalities?: string[]) => void;
   clearFilter: () => void;
@@ -14,6 +14,13 @@ const useDNIFilterStore = create<DNIFilterState>((set) => ({
   dniData: [],
   
   setSelectedDNIs: (dnis: string[]) => {
+    // Si se están aplicando DNIs, limpiar el filtro de localidad
+    if (dnis.length > 0) {
+      // Importar dinámicamente para evitar dependencias circulares
+      import('./localityFilterStore').then(({ useLocalityFilterStore }) => {
+        useLocalityFilterStore.getState().clearFilter();
+      });
+    }
     set({ selectedDNIs: dnis });
   },
   

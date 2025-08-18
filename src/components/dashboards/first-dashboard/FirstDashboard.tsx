@@ -21,19 +21,19 @@ interface FirstDashboardProps {
   dateRange: DateRange;
 }
 
-function hasValidData(value: number): boolean {
+const hasValidData = (value: number): boolean => {
   return value > 0;
 }
 
-function formatNumberWithValidation(value: number): string {
+const formatNumberWithValidation = (value: number): string => {
   return hasValidData(value) ? formatNumberNormalized(value) : 'No hay datos';
 }
 
-function formatCurrencyWithValidation(value: number): string {
+const formatCurrencyWithValidation = (value: number): string => {
   return hasValidData(value) ? formatCurrencyNormalized(value) : 'No hay datos';
 }
 
-function parseMonto(monto: string): number {
+const parseMonto = (monto: string): number => {
   return parseFloat(monto.replace(/[$\s]/g, '').replace(/,/g, ''));
 }
 
@@ -46,7 +46,7 @@ const FirstDashboard: React.FC<FirstDashboardProps> = ({ dateRange }) => {
 
   const [doctorData, setDoctorData] = useState<DoctorData | null>(null);
   const [affiliateData, setAffiliateData] = useState<DoctorData | null>(null);
-  const [mostRecetedMeds] = useState<string>('Clonazepam');
+  const [mostRecetedMeds] = useState<string>('Clonazepam'); // TODO: cambiar
 
   const [cantidadPromedioMedicamentos, setCantidadPromedioMedicamentos] = useState<number>(0);
   const [costoPromedioReceta, setCostoPromedioReceta] = useState<number>(0);
@@ -155,14 +155,11 @@ const FirstDashboard: React.FC<FirstDashboardProps> = ({ dateRange }) => {
     if (data?.data) {
       const recipeValues: CsvRow[] = (data.data['valores-recetas.csv'] as CsvRow[]) || [];
 
-
       const recipeValuesRows: RecipeValuesRow[] = recipeValues.map((row: CsvRow): RecipeValuesRow => ({
         Fecha: row.Fecha || '',
         'Cantidad Med Rx': row['Cantidad Med Rx'] || '',
         'Costo Prom Rx': row['Costo Prom Rx'] || '',
       }));
-
-
 
       const filteredRows: RecipeValuesRow[] = filterDataByDateRange(recipeValuesRows, dateRange);
 
@@ -180,32 +177,24 @@ const FirstDashboard: React.FC<FirstDashboardProps> = ({ dateRange }) => {
         }
       }
 
-
-
       if (latestRow) {
-
         const cantidadMed: number = parseFloat(latestRow['Cantidad Med Rx'] || '0');
         setCantidadPromedioMedicamentos(isNaN(cantidadMed) ? 0 : cantidadMed);
 
         const costoProm: string = latestRow['Costo Prom Rx'];
-
         if (costoProm && costoProm.trim() !== '') {
           const costoClean: string = costoProm.replace(/[$,]/g, '');
-
           const costoNum: number = parseFloat(costoClean);
-
+          
           if (!isNaN(costoNum)) {
             setCostoPromedioReceta(costoNum);
           } else {
-
             setCostoPromedioReceta(0);
-
           }
         } else {
-
           setCostoPromedioReceta(0);
-
         }
+      
       } else {
         setCantidadPromedioMedicamentos(0);
         setCostoPromedioReceta(0);
@@ -217,14 +206,7 @@ const FirstDashboard: React.FC<FirstDashboardProps> = ({ dateRange }) => {
     return (
       <>
         <div className={styles.parent}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '50vh',
-            fontSize: '1.2rem',
-            color: '#dc3545'
-          }}>
+          <div className={styles.errorContainer}>
             Hubo un error al cargar los datos
           </div>
         </div>
@@ -317,7 +299,6 @@ const FirstDashboard: React.FC<FirstDashboardProps> = ({ dateRange }) => {
             <IconMedicine />
             <p className="textItalic">Medicamentos más recetados</p>
             <p className="text">{mostRecetedMeds || 'No hay datos'}</p>
-            {/* TODO: PREGUNTAR POR mostRecetedMeds */}
           </div>
         </div>
       </div>

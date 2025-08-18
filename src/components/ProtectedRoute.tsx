@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { authService } from '../services/auth.service';
+import { isTokenExpired, clearAuth } from '../services/auth.service';
 
 //---------------------------------------------------------------------------------------------------------------------------
 
@@ -20,8 +20,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Verificar expiración del token solo al montar el componente
   useEffect(() => {
-    if (isAuthenticated && authService.checkTokenExpiration()) {
-      console.log('Token expirado detectado en ProtectedRoute');
+    if (isAuthenticated && isTokenExpired()) {
+      
+      clearAuth();
       // El contexto de auth manejará la redirección
     }
   }, [isAuthenticated]); // Solo se ejecuta al montar el componente

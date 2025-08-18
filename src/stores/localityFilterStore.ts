@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { CsvRow } from '../types';
+import type { CsvRow, FilterItem } from '../types';
 
 interface LocalityFilterState {
   selectedLocalities: string[];
-  localityData: Array<{ value: string; label: string; gasto: string; gastoOriginal: number }>;
+  localityData: FilterItem[];
   setSelectedLocalities: (localities: string[]) => void;
   updateLocalityData: (geoBillingData: CsvRow[]) => void;
   clearFilter: () => void;
@@ -14,10 +14,18 @@ const useLocalityFilterStore = create<LocalityFilterState>((set) => ({
   localityData: [],
   
   setSelectedLocalities: (localities: string[]) => {
-    console.log('🏪 LocalityFilterStore - setSelectedLocalities llamado con:', localities);
-    console.log('🏪 LocalityFilterStore - Estado anterior:', useLocalityFilterStore.getState().selectedLocalities);
+    
+    
+    // Si se están aplicando localidades, limpiar el filtro de DNI
+    if (localities.length > 0) {
+      // Importar dinámicamente para evitar dependencias circulares
+      import('./dniFilterStore').then(({ useDNIFilterStore }) => {
+        useDNIFilterStore.getState().clearFilter();
+      });
+    }
+    
     set({ selectedLocalities: localities });
-    console.log('🏪 LocalityFilterStore - Estado actualizado a:', localities);
+    
   },
   
   updateLocalityData: (geoBillingData: CsvRow[]) => {

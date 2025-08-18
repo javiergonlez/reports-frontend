@@ -3,13 +3,19 @@
 import { useTokenExpiration } from "../../../hooks/useTokenExpiration";
 import { useS3DataStore } from "../../../stores/s3DataStore";
 import { useLocalDateRangeContext } from "../../../contexts/LocalDateRangeContext";
-import type { CsvRow, Data3Item, InfoDataItem, SecondDashboardMetrics, SecondDashboardProps, StringOrDateOrNull } from "../../../types";
+import type { CsvRow, MostPrescribedMeds, InfoDataItem, SecondDashboardMetrics, SecondDashboardProps, StringOrDateOrNull } from "../../../types";
 import "../../../App.css";
 import styles from "./second-dashboard.module.css";
 import { useEffect, useState, useMemo } from "react";
 import { filterDataByDateRange, formatNumberNormalized, formatCurrencyNormalized, parseDate } from "../../../utils/dateUtils";
 import { IconSpreadsheet } from "../../../Icons/IconSpreadsheet";
 import { IconDanger } from "../../../Icons/IconDanger";
+import { IconMoney } from "../../../Icons/IconMoney";
+import { IconRecipe } from "../../../Icons/IconRecipe";
+import { IconRecipeMoney } from "../../../Icons/IconRecipeMoney";
+import { IconMoneyCoins } from "../../../Icons/IconMoneyCoins";
+import { IconIncrease } from "../../../Icons/IconIncrease";
+import { IconDecrease } from "../../../Icons/IconDecrease";
 
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -59,20 +65,22 @@ const formatNumberWithOneDecimal = (value: number): string => {
   });
 }
 
-const sumData3 = (...lists: Data3Item[][]): { monto: string; porcentaje: string; cantidad: string } => {
-  const items: Data3Item[] = lists.flat();
+const processData = (...lists: MostPrescribedMeds[][]): { monto: string; porcentaje: string; cantidad: string } => {
+  const items: MostPrescribedMeds[] = lists.flat();
 
-  const totalAmount: number = items.reduce((acc: number, item: Data3Item): number => {
+  
+
+  const totalAmount: number = items.reduce((acc: number, item: MostPrescribedMeds): number => {
     const num: number = parseMonto(item.monto);
     return acc + (isNaN(num) ? 0 : num);
   }, 0);
 
-  const totalPercentage: number = items.reduce((acc: number, item: Data3Item): number => {
+  const totalPercentage: number = items.reduce((acc: number, item: MostPrescribedMeds): number => {
     const num: number = parseFloat(item.porcentaje.replace(/[^\d,.-]/g, '').replace(',', '.'));
     return acc + (isNaN(num) ? 0 : num);
   }, 0);
 
-  const totalQuantity: number = items.reduce((acc: number, item: Data3Item): number => {
+  const totalQuantity: number = items.reduce((acc: number, item: MostPrescribedMeds): number => {
     const num: number = parseFloat(item.cantidad.replace(/\./g, '').replace(',', '.'));
     return acc + (isNaN(num) ? 0 : num);
   }, 0);
@@ -85,13 +93,20 @@ const sumData3 = (...lists: Data3Item[][]): { monto: string; porcentaje: string;
 }
 
 // Función para convertir StringOrDateOrNull a Date | null
-const convertToDateRange = (dateRange: [StringOrDateOrNull, StringOrDateOrNull] | { [0]: Date | null;[1]: Date | null }): [Date | null, Date | null] => {
-  const [start, end] = dateRange as [StringOrDateOrNull, StringOrDateOrNull];
-  const startDate = start instanceof Date ? start : (typeof start === 'string' ? new Date(start) : null);
-  const endDate = end instanceof Date ? end : (typeof end === 'string' ? new Date(end) : null);
+const convertToDateRange = (
+  dateRange: [StringOrDateOrNull, StringOrDateOrNull]
+): [Date | null, Date | null] => {
+  const [start, end] = dateRange;
+
+  const startDate: Date | null =
+    start instanceof Date ? start : (typeof start === "string" ? new Date(start) : null);
+
+  const endDate: Date | null =
+    end instanceof Date ? end : (typeof end === "string" ? new Date(end) : null);
 
   return [startDate, endDate];
 };
+
 
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -114,7 +129,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
     cantidadPromedioMedicamentos: 0
   });
 
-  const [medicamentos, setMedicamentos] = useState<Data3Item[]>([]);
+  const [medicamentos, setMedicamentos] = useState<MostPrescribedMeds[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [infoData, setInfoData] = useState<InfoDataItem[]>([]);
@@ -124,11 +139,16 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
   const [variationRecetasAuditadas, setVariationRecetasAuditadas] = useState<number | null>(null);
   const [variationRecetasConDesvio, setVariationRecetasConDesvio] = useState<number | null>(null);
 
-  // Usar useMemo para memoizar effectiveDateRange y evitar recálculos innecesarios
+  const total: {
+    monto: string;
+    porcentaje: string;
+    cantidad: string
+  } = processData(medicamentos);
+
   const effectiveDateRange: [Date | null, Date | null] = useMemo(() => {
     return localDateRange[0] && localDateRange[1]
       ? convertToDateRange(localDateRange)
-      : convertToDateRange(dateRange);
+      : convertToDateRange(dateRange as [StringOrDateOrNull, StringOrDateOrNull]);
   }, [localDateRange, dateRange]);
 
 
@@ -143,7 +163,6 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
     if (!data?.data) return;
 
     setIsLoading(true);
-
 
     try {
       const medicamentosData: CsvRow[] = (data.data['medicamentos-mas-recetados.csv'] as CsvRow[]) || [];
@@ -176,11 +195,11 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
         g.cantidad += isNaN(cantidad) ? 0 : cantidad;
         g.monto += isNaN(monto) ? 0 : monto;
         g.porcentaje += isNaN(porcentaje) ? 0 : porcentaje;
-        // Mantener la fecha más reciente
+
         if (fecha > g.fecha) g.fecha = fecha;
       }
 
-      const result: Data3Item[] = Array.from(grouped.entries()).map(([nombre, g]: [string, { cantidad: number, monto: number, porcentaje: number, fecha: string }]): Data3Item => ({
+      const result: MostPrescribedMeds[] = Array.from(grouped.entries()).map(([nombre, g]: [string, { cantidad: number, monto: number, porcentaje: number, fecha: string }]): MostPrescribedMeds => ({
         nombre,
         monto: hasValidData(g.monto) ? formatCurrencyNormalized(g.monto) : 'No hay datos',
         porcentaje: hasValidData(g.porcentaje) ? `${formatNumberNormalized(g.porcentaje)} %` : 'No hay datos',
@@ -339,13 +358,12 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
         }
       }
 
-      // Calcular período anterior si tenemos fechas válidas
       let previousRecetasAuditadas: number = 0;
       let previousRecetasConDesvio: number = 0;
 
       if (effectiveDateRange[0] && effectiveDateRange[1]) {
-        const startDate = effectiveDateRange[0] instanceof Date ? effectiveDateRange[0] : new Date(effectiveDateRange[0]);
-        const endDate = effectiveDateRange[1] instanceof Date ? effectiveDateRange[1] : new Date(effectiveDateRange[1]);
+        const startDate: Date = effectiveDateRange[0] instanceof Date ? effectiveDateRange[0] : new Date(effectiveDateRange[0]);
+        const endDate: Date = effectiveDateRange[1] instanceof Date ? effectiveDateRange[1] : new Date(effectiveDateRange[1]);
 
         if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
           const [previousStartDate, previousEndDate] = getPreviousPeriod(startDate, endDate);
@@ -447,7 +465,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
 
       for (const row of filteredValoresRecetas) {
         if (row['Costo Prom Rx'] && row['Costo Prom Rx'].trim() !== '') {
-          const costoValue = row['Costo Prom Rx'];
+          const costoValue: string = row['Costo Prom Rx'];
           let costoNum: number = 0;
 
           // Parsear diferentes formatos
@@ -466,8 +484,8 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
 
         // Procesar cantidad promedio de medicamentos por receta
         if (row['Cantidad Med Rx'] && row['Cantidad Med Rx'].trim() !== '') {
-          const cantidadValue = row['Cantidad Med Rx'];
-          const cantidadNum = parseFloat(cantidadValue);
+          const cantidadValue: string = row['Cantidad Med Rx'];
+          const cantidadNum: number = parseFloat(cantidadValue);
 
           if (!isNaN(cantidadNum) && cantidadNum > 0) {
             totalCantidadPromedioMedicamentos += cantidadNum;
@@ -495,14 +513,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
     return (
       <>
         <div className={styles.parent}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '50vh',
-            fontSize: '1.2rem',
-            color: '#dc3545'
-          }}>
+          <div className={styles.errorContainer}>
             Hubo un error al cargar los datos
           </div>
         </div>
@@ -514,40 +525,24 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
     <div className={styles.parent}>
       <div className={`${styles["grid-item"]} ${styles["metric-card"]} ${styles["metric-card-left"]} ${styles.div1}`} style={{ position: 'relative' }}>
         <p className={styles['text']}>Recetas Auditadas</p>
-        <div style={{ width: '100%', display: 'flex', paddingLeft: '10%' }}>
-          <div style={{ display: 'flex', gap: "0.5rem", alignItems: "center" }}>
+        <div className={styles.iconValueContainer}>
+          <div className={styles.iconValueWrapper}>
             <IconSpreadsheet />
             <p className={styles['value']}>{formatNumberWithValidation(metrics.recetasAuditadas)}</p>
           </div>
         </div>
 
         {variationRecetasAuditadas !== null && (metrics.recetasAuditadas > 0 || previousRecetasAuditadas > 0) && (
-          <div style={{
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-            marginBottom: '0.5rem',
-            marginRight: '1rem',
-            backgroundColor: '#bbdefb',
-            width: '7rem',
-            height: '3rem',
-            borderRadius: '2rem',
-            boxShadow: '0 0 4px rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontWeight: 'bold',
-            fontSize: '1.5rem',
-            color: `${variationRecetasAuditadas >= 0 ? '#e62720ff' : '#18af52ff'}`,
-          }}>
+          <div className={`${styles.variationBadge} ${styles.variationBadgeBlue} ${variationRecetasAuditadas >= 0 ? styles.variationBadgePositive : styles.variationBadgeNegative}`}>
             {variationRecetasAuditadas > 0 ? '+' : ''}{variationRecetasAuditadas}%
+            <IconDecrease style={{ height: '1.5rem' }} />
           </div>
         )}
       </div>
 
       <div className={`${styles["grid-item"]} ${styles["metric-card"]} ${styles["metric-card-left"]} ${styles.div2}`} style={{ position: 'relative' }}>
         <p className={styles['text']}>Recetas con Desvío Detectados</p>
-        <div style={{ display: 'flex', gap: "0.5rem", paddingLeft: '10%' }}>
+        <div className={styles.iconValueWrapperLeft}>
           <IconDanger />
           <p className={styles['value']}>{
             isLoading
@@ -556,80 +551,41 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
           </p>
         </div>
         {variationRecetasConDesvio !== null && (metrics.recetasConDesvio > 0 || previousRecetasConDesvio > 0) && (
-          <div style={{
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-            marginBottom: '0.5rem',
-            marginRight: '1rem',
-            backgroundColor: '#f4c7c3',
-            width: '7rem',
-            height: '3rem',
-            borderRadius: '2rem',
-            boxShadow: '0 0 4px rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontWeight: 'bold',
-            fontSize: '1.5rem',
-            color: `${variationRecetasConDesvio >= 0 ? '#e62720ff' : '#18af52ff'}`,
-          }}>
+          <div className={`${styles.variationBadge} ${styles.variationBadgePink} ${variationRecetasConDesvio >= 0 ? styles.variationBadgePositive : styles.variationBadgeNegative}`}>
             {variationRecetasConDesvio > 0 ? '+' : ''}{variationRecetasConDesvio}%
+            <IconIncrease style={{ height: '1.5rem' }} />
           </div>
         )}
       </div>
 
       <div className={`${styles["grid-item"]} ${styles["metric-card"]} ${styles["metric-card-left"]} ${styles.div3}`} style={{ position: 'relative' }}>
         <p className={`${styles['text']}`}>Costo Acumulado</p>
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start' }}>
-          <div style={{ display: 'flex', gap: "0.5rem", paddingLeft: '10%' }}>
-            <IconSpreadsheet />
+        <div className={styles.iconValueContainer}>
+          <div className={styles.iconValueWrapperLeft}>
+            <IconMoney style={{ height: '2rem' }} />
             <p className={styles['cost']}>{formatCurrencyWithValidation(metrics.costoAcumulado)}</p>
           </div>
         </div>
         {variationRecetasConDesvio !== null && (metrics.recetasConDesvio > 0 || previousRecetasConDesvio > 0) && (
-          <div style={{
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-            marginBottom: '0.5rem',
-            marginRight: '1rem',
-            backgroundColor: '#eac6e2ff',
-            width: '7rem',
-            height: '3rem',
-            borderRadius: '2rem',
-            boxShadow: '0 0 4px rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontWeight: 'bold',
-            fontSize: '1.5rem',
-            color: `${variationRecetasConDesvio >= 0 ? '#e62720ff' : '#18af52ff'}`,
-          }}>
+          <div className={`${styles.variationBadge} ${styles.variationBadgePurple} ${variationRecetasConDesvio >= 0 ? styles.variationBadgePositive : styles.variationBadgeNegative}`}>
             {variationRecetasConDesvio > 0 ? '+' : ''}{variationRecetasConDesvio}%
+            <IconIncrease style={{ height: '1.5rem' }} />
           </div>
         )}
       </div>
 
       <div className={`${styles["grid-item"]} ${styles["metric-card"]} ${styles["metric-card-left"]} ${styles.div4}`}>
         <p className={styles['text']}>Posible Ahorro Estimado</p>
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start' }}>
-          <div style={{ display: 'flex', gap: "0.5rem", paddingLeft: '10%' }}>
-            <IconSpreadsheet />
+        <div className={styles.iconValueContainer}>
+          <div className={styles.iconValueWrapperLeft}>
+            <IconMoneyCoins style={{ height: '2.4rem' }} />
             <p className={styles['value']}>{formatCurrencyWithValidation(metrics.ahorroAcumulado)}</p>
           </div>
         </div>
       </div>
 
       <div className={`${styles["grid-item"]} ${styles.div5}`}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-          }}>
+        <div className={styles.metricItemContainer}>
           <img src="/nurse.png" alt="doctor" style={{ display: 'block', borderWidth: '1px', height: '2.4rem', marginBottom: '0.5rem' }} />
           <p className={styles['text']}>Médicos Registrados</p>
           <p className={styles['value']}>{
@@ -638,15 +594,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
               : 'No hay datos'
           }</p>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-            minWidth: 180
-          }}>
+        <div className={styles.metricItemWithMinWidth}>
           <img src="/money.png" alt="money" style={{ display: 'block', borderWidth: '1px', height: '2.4rem', marginBottom: '0.5rem' }} />
           <p className={styles['text']}>Costo Promedio por Médico</p>
           <p className={styles['cost']}>{
@@ -658,15 +606,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
       </div>
 
       <div className={`${styles["grid-item"]} ${styles.div6}`}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-            minWidth: 180,
-          }}>
+        <div className={styles.metricItemWithMinWidth}>
           <img src="/people.png" alt="people" style={{ display: 'block', borderWidth: '1px', height: '2.4rem', marginBottom: '0.5rem' }} />
           <p className={styles['text']}>Afiliados Registrados</p>
           <p className={styles['value']}>{
@@ -675,15 +615,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
               : 'No hay datos'
           }</p>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-            minWidth: 180,
-          }}>
+        <div className={styles.metricItemWithMinWidth}>
           <img src="/people-money.png" alt="people-money" style={{ display: 'block', borderWidth: '1px', height: '2.4rem', marginBottom: '0.5rem' }} />
           <p className={styles['text']}>Costo Promedio por Afiliado</p>
           <p className={styles['cost']}>{
@@ -694,128 +626,80 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
         </div>
       </div>
 
-      <div className={`${styles["grid-item"]} ${styles.div7}`}>
+      <div className={`${styles["grid-item"]} ${styles.div7}`}
+        style={{ display: "flex", flexDirection: "column", height: "100%" }}>
 
-        <div style={{ padding: '1rem', color: '#333', fontWeight: 'bold', textAlign: 'center', fontSize: '1.5rem' }}>
+        <div style={{
+          padding: "1rem",
+          color: "#333",
+          fontWeight: "bold",
+          textAlign: "center",
+          fontSize: "2rem",
+          flexShrink: 0
+        }}>
           Tabla de Recetas
         </div>
 
         {isLoading ? (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '200px',
-            fontSize: '1.1rem',
-            color: '#666'
-          }}>
+          <div className={styles.loadingContainer}>
             Cargando datos de medicamentos...
           </div>
         ) : medicamentos.length === 0 ? (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '200px',
-            fontSize: '1.1rem',
-            color: '#666'
-          }}>
+          <div className={styles.noDataContainer}>
             No hay datos de medicamentos para el período seleccionado
           </div>
         ) : (
-          <table
-            className="striped-table"
-            style={{
-              borderCollapse: 'collapse',
-              width: '100%',
-              height: '50%',
-              textAlign: 'center',
-              overflowY: 'auto',
-            }}
-          >
-            <thead>
-              <tr style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 2,
-                backgroundColor: '#91b6f2ff',
-                color: '#333',
-              }}>
-                <th style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>Medicamentos</th>
-                <th style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>Presentación</th>
-                <th style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>Cantidad</th>
-                <th style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>Monto Equivalente</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {medicamentos.map((med: Data3Item, index: number) => (
-                <tr key={index} style={{ color: '#141414', textAlign: 'center' }}>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>{med.nombre}</td>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>{med.monto}</td>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>{med.porcentaje}</td>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>
-                    {med.cantidad !== 'No hay datos'
-                      ? `$${med.cantidad}`
-                      : med.cantidad}
-                  </td>
-                </tr>
-              ))}
-              {Array.from({ length: Math.max(0, 9 - medicamentos.length) }).map((_, i) => (
-                <tr key={`empty-${i}`}>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>&nbsp;</td>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>&nbsp;</td>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>&nbsp;</td>
-                  <td style={{ width: '25%', boxSizing: 'border-box', padding: '0.3rem' }}>&nbsp;</td>
-                </tr>
-              ))}
-
-              <tfoot>
-                <tr>asdkasdklads</tr>
-              </tfoot>
-            </tbody>
-
-            <tfoot>
-              {(() => {
-                const total: { monto: string; porcentaje: string; cantidad: string } = sumData3(medicamentos);
-                return (
-                  <tr style={{
-                    fontWeight: 'bold',
-                    backgroundColor: '#9f9f9fff',
-                    position: 'absolute',
-                    bottom: 0,
-                    zIndex: 1,
-                    width: '100%',
-                    textAlign: 'center',
-                    color: '#141414'
-                  }}>
+          <div className={styles['table-wrapper']}>
+            <div className={styles['table-container']}>
+              <table className={styles['striped-table']}>
+                <thead>
+                  <tr>
+                    <th>Medicamentos</th>
+                    <th>Presentación</th>
+                    <th>Cantidad</th>
+                    <th>Monto Equivalente</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {medicamentos.map((med: MostPrescribedMeds, index: number) => (
+                    <tr key={index}>
+                      <td>{med.nombre}</td>
+                      <td>{med.monto}</td>
+                      <td>{med.porcentaje}</td>
+                      <td>
+                        {med.cantidad !== 'No hay datos'
+                          ? `$${med.cantidad}`
+                          : med.cantidad}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className={styles['table-footer']}>
+              <table>
+                <tbody>
+                  <tr>
                     <td>Total</td>
                     <td>{total.monto}</td>
                     <td>{total.porcentaje}</td>
-                    <td>{
-                      total.cantidad !== 'No hay datos'
+                    <td>
+                      {total.cantidad !== "No hay datos"
                         ? `$${total.cantidad}`
                         : total.cantidad}
                     </td>
                   </tr>
-                );
-              })()}
-            </tfoot>
-          </table>
-        )};
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
+
       <div className={`${styles["grid-item"]} ${styles.div8}`}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-            minWidth: 180,
-          }}>
-          <img src="/people-money.png" alt="people-money" style={{ display: 'block', borderWidth: '1px', height: '2.4rem', marginBottom: '0.5rem' }} />
+        <div className={styles.metricItemWithMinWidth}>
+          <IconRecipe style={{ height: '2.4rem', marginBottom: '0.5rem' }} />
           <p className={styles['text']}>Costo Promedio por Receta:</p>
           <p className={styles['cost']}>{
             isLoading
@@ -824,16 +708,8 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
           </p>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 12,
-            minWidth: 180,
-          }}>
-          <img src="/people.png" alt="people" style={{ display: 'block', borderWidth: '1px', height: '2.4rem', marginBottom: '0.5rem' }} />
+        <div className={styles.metricItemWithMinWidth}>
+          <IconRecipeMoney style={{ height: '2.2rem', marginBottom: '0.5rem' }} />
           <p className={styles['text-sm']} style={{ lineHeight: '0.9' }}>Cantidad Promedio</p>
           <p className={styles['text-sm']} style={{ lineHeight: '0.9' }}>Medicamentos por Receta:</p>
           <p className={styles['value']}>{isLoading

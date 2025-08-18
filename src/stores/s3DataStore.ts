@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { apiService } from '../services/api.service';
+import { getS3DataJson } from '../services/api.service';
 import type { S3Response, S3DataState } from '../types';
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ const useS3DataStore = create<S3DataState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const data: S3Response = await apiService.getS3DataJson();
+          const data: S3Response = await getS3DataJson();
           set({ 
             data, 
             isLoading: false, 

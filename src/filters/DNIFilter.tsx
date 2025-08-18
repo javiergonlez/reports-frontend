@@ -2,27 +2,28 @@ import { Popover, Input } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useDNIFilterStore } from '../stores/dniFilterStore';
+import type { FilterItem } from '../types';
 
 const DNIFilter = () => {
-  const [opened, setOpened] = useState(false);
+  const [opened, setOpened] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const { selectedDNIs, dniData, setSelectedDNIs } = useDNIFilterStore();
 
   // Filtrar DNIs basado en el término de búsqueda
-  const filteredDniData = dniData.filter(dni =>
+  const filteredDniData: FilterItem[] = dniData.filter((dni: FilterItem) =>
     dni.value.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Verificar si todos los DNIs filtrados están seleccionados
-  const allFilteredSelected = filteredDniData.length > 0 &&
-    filteredDniData.every(dni => selectedDNIs.includes(dni.value));
+  const allFilteredSelected: boolean = filteredDniData.length > 0 &&
+    filteredDniData.every((dni: FilterItem): boolean => selectedDNIs.includes(dni.value));
 
   // Función para el checkbox master
-  const handleMasterCheckbox = (checked: boolean) => {
+  const handleMasterCheckbox = (checked: boolean): void => {
     if (checked) {
       // Seleccionar todos los DNIs filtrados
-      const allFilteredValues = filteredDniData.map(dni => dni.value);
+      const allFilteredValues: string[] = filteredDniData.map((dni: FilterItem) => dni.value);
       setSelectedDNIs(allFilteredValues);
     } else {
       // Deseleccionar todos
@@ -42,10 +43,10 @@ const DNIFilter = () => {
       >
         <Popover.Target>
           <div style={{ position: 'relative', width: '100%' }}>
-            <div onClick={() => setOpened((o) => !o)} style={{ width: '100%' }}>
+            <div onClick={() => setOpened((o: boolean) => !o)} style={{ width: '100%' }}>
               <Input
                 readOnly
-                value={selectedDNIs.join(', ')}
+                value={selectedDNIs.length > 0 ? selectedDNIs.join(', ') : "Buscar por DNI Afiliado"}
                 placeholder="Buscar por DNI Afiliado"
                 rightSection={<IconChevronDown size="1.2rem" />}
                 styles={{
@@ -98,7 +99,7 @@ const DNIFilter = () => {
                 type="text"
                 placeholder="Escriba el término de búsqueda"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '8px',
@@ -114,7 +115,7 @@ const DNIFilter = () => {
                 No se encontraron DNIs que coincidan con "{searchTerm}"
               </div>
             ) : (
-              filteredDniData.map((dni) => (
+              filteredDniData.map((dni: FilterItem) => (
                 <label key={dni.value} style={{
                   display: 'flex',
                   alignItems: 'center',

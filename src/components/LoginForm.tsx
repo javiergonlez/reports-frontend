@@ -74,19 +74,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     }
 
     try {
-      console.log('Iniciando login...');
       await login(
         credentials.email.trim().toLowerCase(),
         credentials.password
       );
 
-      console.log('Login exitoso, redirigiendo...');
       onSuccess?.();
       navigate('/'); // Redirigir a la pagina principal
     } catch (err) {
       const errorMessage: string = err instanceof Error ? err.message : 'Error desconocido';
       setGeneralError(errorMessage);
-      console.error('Error en login:', err);
     }
   };
 

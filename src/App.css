@@ -81,7 +81,7 @@ ul {
 }
 
 .striped-table tr:nth-child(even) {
-  background-color: #f8f9fb;
+  background-color: #e2e2e2;
 }
 
 .striped-table th {

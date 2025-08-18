@@ -17,7 +17,6 @@ import './auth.css';
 //---------------------------------------------------------------------------------------------------------------------------
 
 const LoginPage = (): React.JSX.Element => {
-  // TODO: AJUSTAR DETALLES
 
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
@@ -70,7 +69,6 @@ const LoginPage = (): React.JSX.Element => {
     }
 
     try {
-      console.log('Iniciando login...');
 
       // Agregar un timeout para evitar que se quede colgado indefinidamente
       const timeoutPromise = new Promise<never>((_, reject) => {
@@ -85,12 +83,10 @@ const LoginPage = (): React.JSX.Element => {
         timeoutPromise
       ]);
 
-      console.log('Login exitoso, redirigiendo...');
-      navigate('/'); // Redirigir a la pagina principal
+      navigate('/');
     } catch (err) {
       const errorMessage: string = err instanceof Error ? err.message : 'Error desconocido';
       setGeneralError(errorMessage);
-      console.error('Error en login:', err);
     }
   };
 

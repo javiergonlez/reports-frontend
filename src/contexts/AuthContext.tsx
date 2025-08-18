@@ -1,29 +1,30 @@
 //---------------------------------------------------------------------------------------------------------------------------
 
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { authService } from '../services/auth.service';
-import { useS3DataStore } from '../stores/s3DataStore';
-import type { User } from '../types';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { login as loginService, logout as logoutService, isAuthenticated, clearAuth } from '../services/auth.service'
+import { useS3DataStore } from '../stores/s3DataStore'
+import type { S3DataState, User } from '../types'
 
 //---------------------------------------------------------------------------------------------------------------------------
 
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+type AuthContextType = {
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  login: (email: string, password: string) => Promise<void>
+  logout: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext: React.Context<AuthContextType | undefined>
+  = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
+type AuthProviderProps = {
   children: ReactNode;
 }
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { fetchS3Data } = useS3DataStore();
 
@@ -31,72 +32,64 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = (): void => {
       try {
-        // Usar el método del servicio para verificar autenticación
-        if (authService.isAuthenticated()) {
+        if (isAuthenticated()) {
           const storedUser: string | null = localStorage.getItem('user');
           if (storedUser) {
             const userData: User = JSON.parse(storedUser);
             setUser(userData);
-            setIsAuthenticated(true);
-            
+            setIsAuth(true);
+
             // Si ya hay datos en el store, no hacer fetch
-            const store = useS3DataStore.getState();
+            const store: S3DataState = useS3DataStore.getState();
             if (!store.data) {
-              // Solo hacer fetch si no hay datos previos
               fetchS3Data();
             }
           }
         } else {
-          // Si no está autenticado o el token expiró, limpiar estado
-          authService.clearAuth();
+          clearAuth();
           setUser(null);
-          setIsAuthenticated(false);
+          setIsAuth(false);
         }
       } catch (error) {
         console.error('Error al inicializar autenticación:', error);
-        // Limpiar localStorage en caso de error
-        authService.clearAuth();
+        clearAuth();
         setUser(null);
-        setIsAuthenticated(false);
+        setIsAuth(false);
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
     initializeAuth();
-  }, [fetchS3Data]);
+  }, [fetchS3Data])
 
   const login = async (email: string, password: string): Promise<void> => {
     try {
       setIsLoading(true);
-      const userData: User = await authService.login({ email, password });
+      const userData: User = await loginService({ email, password });
       setUser(userData);
-      setIsAuthenticated(true);
-      
-      // Pequeño delay para asegurar que el token se guarde en localStorage
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      setIsAuth(true);
+
       // Hacer fetch inicial de datos después del login exitoso
       await fetchS3Data();
     } catch (error) {
-      console.error('Error en login:', error);
+      console.error(error);
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      await authService.logout();
+      await logoutService();
       setUser(null);
-      setIsAuthenticated(false);
+      setIsAuth(false);
     } catch (error) {
       console.error('Error en logout:', error);
-      // Aún así limpiar el estado local
       setUser(null);
-      setIsAuthenticated(false);
+      setIsAuth(false);
       throw error;
     } finally {
       setIsLoading(false);
@@ -105,22 +98,21 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user,
-    isAuthenticated,
+    isAuthenticated: isAuth,
     isLoading,
     login,
     logout,
-  };
+  }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = (): AuthContextType => {
   const context: AuthContextType | undefined = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
 
 export { AuthProvider };

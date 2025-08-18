@@ -2,6 +2,7 @@ import { Popover, Input } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useLocalityFilterStore } from '../stores/localityFilterStore';
+import type { FilterItem } from '../types';
 
 const LocalityFilter = () => {
   const [opened, setOpened] = useState(false);
@@ -9,24 +10,21 @@ const LocalityFilter = () => {
   
   const { selectedLocalities, localityData, setSelectedLocalities } = useLocalityFilterStore();
 
-  // Debug: log cuando cambien las localidades seleccionadas
-  console.log('🔍 LocalityFilter - selectedLocalities actualizadas:', selectedLocalities);
-
   // Filtrar localidades basado en el término de búsqueda
-  const filteredLocalidadesData = localityData.filter(localidad =>
+  const filteredLocalidadesData: FilterItem[] = localityData.filter((localidad: FilterItem) =>
     localidad.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
     localidad.value.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Verificar si todas las localidades filtradas están seleccionadas
-  const allFilteredSelected : boolean = filteredLocalidadesData.length > 0 &&
-    filteredLocalidadesData.every(localidad => selectedLocalities.includes(localidad.value));
+  const allFilteredSelected: boolean = filteredLocalidadesData.length > 0 &&
+    filteredLocalidadesData.every((localidad: FilterItem): boolean => selectedLocalities.includes(localidad.value));
 
   // Función para el checkbox master
-  const handleMasterCheckbox = (checked: boolean) => {
+  const handleMasterCheckbox = (checked: boolean): void => {
     if (checked) {
       // Seleccionar todas las localidades filtradas
-      const allFilteredValues: string[] = filteredLocalidadesData.map(localidad => localidad.value);
+      const allFilteredValues: string[] = filteredLocalidadesData.map((localidad: FilterItem) => localidad.value);
       setSelectedLocalities(allFilteredValues);
     } else {
       // Deseleccionar todas
@@ -49,7 +47,7 @@ const LocalityFilter = () => {
             <div onClick={() => setOpened((o: boolean) => !o)} style={{ width: '100%' }}>
               <Input
                 readOnly
-                value={selectedLocalities.join(', ')}
+                value={selectedLocalities.length > 0 ? selectedLocalities.join(', ') : "Buscar por Localidad"}
                 placeholder="Buscar por Localidad"
                 rightSection={<IconChevronDown size="1.2rem" />}
                 styles={{

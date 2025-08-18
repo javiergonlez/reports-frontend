@@ -13,9 +13,7 @@ const LogoutButton = (): React.JSX.Element => {
 
   const handleLogout: () => Promise<void> = async (): Promise<void> => {
     try {
-      console.log('Iniciando logout...');
       await logout();
-      console.log('Logout exitoso...');
       navigate('/login');
     } catch (error) {
       console.error('Error en logout:', error);

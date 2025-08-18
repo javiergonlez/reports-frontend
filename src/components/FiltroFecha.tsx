@@ -19,13 +19,14 @@ interface FiltroFechaProps {
 const FiltroFecha: React.FC<FiltroFechaProps> = ({ 
   value, 
   onChange, 
-  placeholder = "Selecciona un periodo",
+  placeholder = "Filtrar por periodo",
   width = 450 
 }) => {
   return (
     <DatePickerInput
       type="range"
       placeholder={placeholder}
+      defaultValue={[null, null]}
       clearable
       valueFormat="DD/MM/YYYY"
       style={{ width }}
@@ -41,6 +42,10 @@ const FiltroFecha: React.FC<FiltroFechaProps> = ({
         },
         root: {
           height: '2.5rem',
+        },
+        placeholder: {
+          color: '#141414',
+          fontSize: '1.45rem',
         },
       }}
       locale="es"

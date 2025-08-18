@@ -16,6 +16,7 @@ import {
     resetPaintingState
 } from "../utils/mapUtils";
 import { useS3DataStore } from "../stores/s3DataStore";
+import { getActiveMapConfig } from "../config/mapConfig";
 import type {
     SumsByLocality,
     GeoJsonProperties,
@@ -199,9 +200,10 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
 }
 
 const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps): React.JSX.Element => {
-    const STADIA_API_KEY: string | undefined = import.meta.env.VITE_STADIA_KEY;
-    if (!STADIA_API_KEY) {
-        console.warn('MapView: VITE_STADIA_KEY environment variable is not set. Using OpenStreetMap as fallback.');
+    const mapConfig = getActiveMapConfig();
+    
+    if (!mapConfig.isActive) {
+        console.info('MapView: Using OpenStreetMap as map provider (Stadia Maps API key not configured)');
     }
     
     const center: LatLngExpression = [-34.5896, -58.6276];
@@ -242,14 +244,7 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
             return;
         }
 
-        console.log('🔍 MapView - Procesando datos:', {
-            billingDataLength: billingData.length,
-            selectedLocalities,
-            sampleBillingData: billingData.slice(0, 3).map(row => ({
-                patient_department: row.patient_department,
-                localidad: row.localidad
-            }))
-        });
+
 
         // Lógica de procesamiento:
         // - Si NO hay localidades seleccionadas: procesar TODOS los datos (comportamiento por defecto)
@@ -264,23 +259,16 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
                 );
             });
 
-            console.log('🔍 MapView - Datos filtrados:', {
-                selectedLocalities,
-                filteredDataLength: filteredData.length,
-                filteredDataSample: filteredData.slice(0, 3).map(row => ({
-                    patient_department: row.patient_department,
-                    total_discounted_price: row.total_discounted_price
-                }))
-            });
+
 
             const { sums: newSums, minMax: newMinMax } = processBillingData(filteredData);
-            console.log('🔍 MapView - Sums generados:', newSums);
+
             setSums(newSums);
             setMinMax(newMinMax);
         } else {
             // Modo por defecto: procesar todos los datos para mostrar todas las localidades
             const { sums: newSums, minMax: newMinMax } = processBillingData(billingData);
-            console.log('🔍 MapView - Sums por defecto:', newSums);
+
             setSums(newSums);
             setMinMax(newMinMax);
         }
@@ -333,12 +321,14 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
                     const availableNames = Object.keys(sums);
                     const bestMatch = findBestMatch(mainLocalityName, availableNames);
 
+
+
                     if (bestMatch) {
-                        // Pasar el nombre de los datos (no el del GeoJSON)
-                        onLocalityClick(bestMatch);
+                        // Pasar el nombre ORIGINAL del GeoJSON, no el normalizado
+                        onLocalityClick(mainLocalityName);
                     } else {
-                        // Si no hay match, pasar el nombre normalizado del GeoJSON como fallback
-                        onLocalityClick(nombre);
+                        // Si no hay match, pasar el nombre original del GeoJSON como fallback
+                        onLocalityClick(mainLocalityName);
                     }
                 }
             }
@@ -371,19 +361,12 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
         <MapContainer
             center={center}
             zoom={11}
-            style={{ height: "88%", width: "100%", borderRadius: '1.5rem' }}
+            style={{ height: "100%", width: "100%", borderRadius: '1.5rem' }}
         >
-            {STADIA_API_KEY ? (
-                <TileLayer
-                    url={`https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`}
-                    attribution="&copy; <a href='https://stadiamaps.com/'>Stadia Maps</a>"
-                />
-            ) : (
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-                />
-            )}
+            <TileLayer
+                url={mapConfig.url}
+                attribution={mapConfig.attribution}
+            />
 
 
             {geojson && (() => {

@@ -6,18 +6,19 @@ import type { StringOrDateOrNull } from '../types';
 
 //---------------------------------------------------------------------------------------------------------------------------
 
-interface LocalDateRangeContextType {
+type LocalDateRangeContextType = {
     localDateRange: [StringOrDateOrNull, StringOrDateOrNull];
     handleLocalDateRangeChange: (value: [StringOrDateOrNull, StringOrDateOrNull]) => void;
 }
 
-const LocalDateRangeContext = createContext<LocalDateRangeContextType | undefined>(undefined);
+const LocalDateRangeContext: React.Context<LocalDateRangeContextType | undefined>
+    = createContext<LocalDateRangeContextType | undefined>(undefined);
 
-interface LocalDateRangeProviderProps {
+type LocalDateRangeProviderProps = {
     children: ReactNode;
 }
 
-export const LocalDateRangeProvider: React.FC<LocalDateRangeProviderProps> = ({ children }) => {
+const LocalDateRangeProvider: React.FC<LocalDateRangeProviderProps> = ({ children }) => {
     const [localDateRange, setLocalDateRange] = useState<[StringOrDateOrNull, StringOrDateOrNull]>([null, null]);
 
     const handleLocalDateRangeChange = (value: [StringOrDateOrNull, StringOrDateOrNull]) => {
@@ -31,10 +32,12 @@ export const LocalDateRangeProvider: React.FC<LocalDateRangeProviderProps> = ({ 
     );
 };
 
-export const useLocalDateRangeContext = (): LocalDateRangeContextType => {
-    const context = useContext(LocalDateRangeContext);
+const useLocalDateRangeContext = (): LocalDateRangeContextType => {
+    const context: LocalDateRangeContextType | undefined = useContext(LocalDateRangeContext);
     if (context === undefined) {
         throw new Error('useLocalDateRangeContext must be used within a LocalDateRangeProvider');
     }
     return context;
 }; 
+
+export { LocalDateRangeProvider, useLocalDateRangeContext };

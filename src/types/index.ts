@@ -1,14 +1,4 @@
-// Environment variables types for Vite
-declare global {
-  interface ImportMetaEnv {
-    readonly VITE_STADIA_KEY?: string;
-    // Add other environment variables here as needed
-  }
-  
-  interface ImportMeta {
-    readonly env: ImportMetaEnv;
-  }
-}
+
 
 export type LoginCredentials = {
   email: string;
@@ -216,7 +206,7 @@ export type RecipeValuesRow = {
   'Fecha': string
 }
 
-export type Data3Item = {
+export type MostPrescribedMeds = {
   nombre: string;
   monto: string;
   porcentaje: string;
@@ -244,7 +234,7 @@ export type SecondDashboardMetrics = {
 
 export type SecondDashboardState = {
   metrics: SecondDashboardMetrics;
-  medicamentos: Data3Item[];
+  medicamentos: MostPrescribedMeds[];
   infoData: InfoDataItem[];
   afiliadosData: InfoDataItem[];
   isLoading: boolean;
@@ -321,4 +311,11 @@ export type FirstDashboardState = {
   cantidadPromedioMedicamentos: number;
   isLoading: boolean;
   error: string | null;
+}
+
+export type FilterItem = {
+  value: string;
+  label: string;
+  gasto: string;
+  gastoOriginal: number;
 }

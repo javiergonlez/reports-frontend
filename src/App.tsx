@@ -26,7 +26,7 @@ const App = (): React.JSX.Element => {
   const dashboards: { key: string; value: string; }[] = Object.entries(dashboardsData).map(([key, value]: [string, string]) => ({ key, value }));
   const reports: { key: string; value: string; }[] = Object.entries(reportsData).map(([key, value]: [string, string]) => ({ key, value }));
 
-  console.log(data?.data);
+  
 
   return (
     <main className="main-container">

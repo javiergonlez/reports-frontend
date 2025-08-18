@@ -281,3 +281,12 @@
   border-radius: 12px;
   background: linear-gradient(45deg, rgba(62, 174, 99, 1) 11%, rgba(101, 190, 125, 1) 30%, rgba(176, 220, 186, 1) 67%, rgba(237, 250, 255, 1) 91%);
 }
+
+.errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: #dc3545;
+}

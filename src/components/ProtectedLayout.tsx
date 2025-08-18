@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { authService } from '../services/auth.service';
+import { isTokenExpired, clearAuth } from '../services/auth.service';
 
 //---------------------------------------------------------------------------------------------------------------------------
 
@@ -14,10 +14,11 @@ interface ProtectedLayoutProps {
 const ProtectedLayout: React.FC<ProtectedLayoutProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Verificar expiracion del token solo al montar el componente
+  // Verificar expiración del token solo al montar el componente
   useEffect(() => {
-    if (isAuthenticated && authService.checkTokenExpiration()) {
-      console.log('Token expirado detectado en ProtectedLayout');
+    if (isAuthenticated && isTokenExpired()) {
+      
+      clearAuth();
       // El contexto de auth manejará la redirección
     }
   }, [isAuthenticated]); // Solo se ejecuta al montar el componente
@@ -35,6 +36,6 @@ const ProtectedLayout: React.FC<ProtectedLayoutProps> = ({ children }) => {
   }
 
   return <>{children}</>;
-}; 
+};
 
 export { ProtectedLayout };

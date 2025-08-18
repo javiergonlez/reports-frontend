@@ -60,34 +60,26 @@ const localityNameMapping: Record<string, string[]> = {
 const findBestMatch = (targetName: string, availableNames: string[]): string | null => {
     const normalizedTarget: string = normalizeName(targetName);
 
-    console.log('🔍 findBestMatch - Buscando coincidencia para:', {
-        targetName,
-        normalizedTarget,
-        availableNames: availableNames.map(name => ({ original: name, normalized: normalizeName(name) }))
-    });
+
 
     // Buscar coincidencia exacta primero
     const exactMatch = availableNames.find(name => normalizeName(name) === normalizedTarget);
     if (exactMatch) {
-        console.log('🔍 findBestMatch - Coincidencia exacta encontrada:', exactMatch);
         return exactMatch;
     }
 
     // Si no hay coincidencia exacta, buscar en el mapeo
     for (const [filterName, mapNames] of Object.entries(localityNameMapping)) {
         if (mapNames.includes(normalizedTarget)) {
-            console.log('🔍 findBestMatch - Coincidencia en mapeo encontrada:', { filterName, mapNames, normalizedTarget });
             // Verificar si el nombre del filtro está en las localidades seleccionadas
             const filterNameNormalized = normalizeName(filterName);
             const match = availableNames.find(name => normalizeName(name) === filterNameNormalized);
             if (match) {
-                console.log('🔍 findBestMatch - Coincidencia final encontrada:', match);
                 return match;
             }
         }
     }
 
-    console.log('🔍 findBestMatch - No se encontró coincidencia');
     // Si no hay coincidencia, retornar null
     return null;
 }
@@ -267,18 +259,10 @@ const getFeatureStyle = (
     const mainLocalityName: string = extractMainLocalityName(rawDepartamento);
     const normalizedName: string = normalizeName(mainLocalityName);
 
-    console.log('🎨 getFeatureStyle - Procesando feature:', {
-        rawDepartamento,
-        mainLocalityName,
-        normalizedName,
-        selectedLocalities,
-        availableSums: Object.keys(sums),
-        paintedLocalities: Array.from(paintedLocalities)
-    });
+
 
     // Si ya pintamos esta localidad, retornar transparente
     if (paintedLocalities.has(normalizedName)) {
-        console.log('🎨 getFeatureStyle - Ya pintada, retornando transparente:', normalizedName);
         return {
             fillColor: 'transparent',
             weight: 1,
@@ -291,7 +275,6 @@ const getFeatureStyle = (
 
     // Si es una entidad administrativa pura, excluirla
     if (isPureAdministrativeEntity(mainLocalityName)) {
-        console.log('🎨 getFeatureStyle - Entidad administrativa, excluyendo:', mainLocalityName);
         return {
             fillColor: 'transparent',
             weight: 1,
@@ -321,7 +304,6 @@ const getFeatureStyle = (
     );
 
     if (isGenericName || isArgentineProvince) {
-        console.log('🎨 getFeatureStyle - Nombre genérico o provincia, excluyendo:', mainLocalityName);
         return {
             fillColor: 'transparent',
             weight: 1,
@@ -334,7 +316,6 @@ const getFeatureStyle = (
 
     // Si no hay datos disponibles, todas las localidades deben ser transparentes
     if (Object.keys(sums).length === 0) {
-        console.log('🎨 getFeatureStyle - No hay datos disponibles, retornando transparente');
         return {
             fillColor: 'transparent',
             weight: 1,
@@ -352,11 +333,9 @@ const getFeatureStyle = (
     
     // Siempre buscar coincidencia en todos los datos disponibles para mantener el mapa pintado
     bestMatch = findBestMatch(mainLocalityName, Object.keys(sums));
-    console.log('🎨 getFeatureStyle - Buscando coincidencia en datos disponibles:', { mainLocalityName, availableNames: Object.keys(sums), bestMatch });
     
     // Si no hay coincidencia, la localidad debe ser transparente
     if (!bestMatch) {
-        console.log('🎨 getFeatureStyle - No hay coincidencia en datos disponibles, retornando transparente');
         return {
             fillColor: 'transparent',
             weight: 1,
@@ -369,11 +348,9 @@ const getFeatureStyle = (
 
     // Obtener el valor para la localidad encontrada
     const value: number = sums[bestMatch];
-    console.log('🎨 getFeatureStyle - Valor encontrado:', { bestMatch, value });
 
     // Si el valor es inválido o cero, la localidad debe ser transparente
     if (value === undefined || value === null || isNaN(value) || value <= 0) {
-        console.log('🎨 getFeatureStyle - Valor inválido o cero, retornando transparente:', value);
         return {
             fillColor: 'transparent',
             weight: 1,
@@ -389,7 +366,6 @@ const getFeatureStyle = (
 
     // Marcar esta localidad como pintada
     paintedLocalities.add(normalizedName);
-    console.log('🎨 getFeatureStyle - Pintando localidad:', { normalizedName, color, value });
 
     return {
         fillColor: color,

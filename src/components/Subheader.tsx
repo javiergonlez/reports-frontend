@@ -44,7 +44,8 @@ const Subheader = (): React.JSX.Element => {
                 ) : (
                     <DatePickerInput
                         type="range"
-                        placeholder="Selecciona un periodo"
+                        placeholder="Filtrar por periodo"
+                        defaultValue={[null, null]}
                         clearable
                         valueFormat="DD/MM/YYYY"
                         style={{ width: 450 }}
@@ -60,6 +61,10 @@ const Subheader = (): React.JSX.Element => {
                             },
                             root: {
                                 height: '2.5rem',
+                            },
+                            placeholder: {
+                                color: '#141414',
+                                fontSize: '1.45rem',
                             },
                         }}
                         locale="es"
