@@ -667,12 +667,12 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
                   {medicamentos.map((med: MostPrescribedMeds, index: number) => (
                     <tr key={index}>
                       <td>{med.nombre}</td>
-                      <td>{med.monto}</td>
+                      <td>{med.monto.split(',')[0]}</td>
                       <td>{med.porcentaje}</td>
                       <td>
                         {med.cantidad !== 'No hay datos'
-                          ? `$${med.cantidad}`
-                          : med.cantidad}
+                          ? `$${med.cantidad.split(',')[0]}`
+                          : med.cantidad.split(',')[0]}
                       </td>
                     </tr>
                   ))}
@@ -684,12 +684,12 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
                 <tbody>
                   <tr>
                     <td>Total</td>
-                    <td>{total.monto}</td>
+                    <td>{total.monto.split(',')[0]}</td>
                     <td>{total.porcentaje}</td>
                     <td>
                       {total.cantidad !== "No hay datos"
-                        ? `$${total.cantidad}`
-                        : total.cantidad}
+                        ? `$${total.cantidad.split(',')[0]}`
+                        : total.cantidad.split(',')[0]}
                     </td>
                   </tr>
                 </tbody>

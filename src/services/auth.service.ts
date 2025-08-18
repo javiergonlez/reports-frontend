@@ -101,7 +101,6 @@ const isAuthenticated = (): boolean => {
 
   return true;
 };
-
 const clearAuth = (): void => {
   localStorage.removeItem('user');
   localStorage.removeItem('token');
@@ -111,3 +110,4 @@ const clearAuth = (): void => {
 };
 
 export { login, logout, getToken, isTokenExpired, isAuthenticated, clearAuth };
+

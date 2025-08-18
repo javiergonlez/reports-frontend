@@ -26,22 +26,17 @@ const cleanNumber = (str: string): number | null => {
     return parseFloat(cleaned);
 }
 
-// Comentario: El mapeo manual se eliminó en favor de la normalización automática
-
-// Comentario: Función eliminada - ahora solo pintamos localidades que están en los datos
-
-// Función de normalización robusta que transforma nombres de manera consistente
 const normalizeName = (name: string): string => {
     if (!name) return '';
 
     return name
-        .toLowerCase() // Convertir a minúsculas
-        .normalize('NFD') // Normalizar caracteres Unicode
-        .replace(/[\u0300-\u036f]/g, '') // Remover acentos y diacríticos
-        .replace(/[.,;:!?()[\]{}]/g, '') // Remover puntuación
-        .replace(/['"`]/g, '') // Remover comillas
-        .replace(/[-_]/g, ' ') // Convertir guiones y guiones bajos a espacios
-        .replace(/\s+/g, '') // Remover todos los espacios
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[.,;:!?()[\]{}]/g, '')
+        .replace(/['"`]/g, '')
+        .replace(/[-_]/g, ' ')
+        .replace(/\s+/g, '')
         .trim();
 }
 
@@ -56,20 +51,16 @@ const localityNameMapping: Record<string, string[]> = {
     'G. De La Ferrere': ['gdelafarrere', 'gdelafarrere']
 };
 
-// Función para encontrar la mejor coincidencia entre un nombre y una lista de nombres disponibles
 const findBestMatch = (targetName: string, availableNames: string[]): string | null => {
     const normalizedTarget: string = normalizeName(targetName);
 
-    // Buscar coincidencia exacta primero
     const exactMatch: string | undefined = availableNames.find((name: string) => normalizeName(name) === normalizedTarget);
     if (exactMatch) {
         return exactMatch;
     }
 
-    // Si no hay coincidencia exacta, buscar en el mapeo
     for (const [filterName, mapNames] of Object.entries(localityNameMapping)) {
         if (mapNames.includes(normalizedTarget)) {
-            // Verificar si el nombre del filtro está en las localidades seleccionadas
             const filterNameNormalized: string = normalizeName(filterName);
             const match: string | undefined = availableNames.find((name: string) => normalizeName(name) === filterNameNormalized);
             if (match) {
@@ -78,7 +69,6 @@ const findBestMatch = (targetName: string, availableNames: string[]): string | n
         }
     }
 
-    // Si no hay coincidencia, retornar null
     return null;
 }
 
@@ -87,7 +77,6 @@ const formatTotal = (num: number): string => {
 }
 
 const getColorIntervals = (min: number, max: number): readonly number[] => {
-    // Si min <= 0, lo subimos a 1 para evitar log(0)
     const safeMin: number = min > 0 ? min : 1;
     const safeMax: number = max > 0 ? max : 1;
     const logMin: number = Math.log(safeMin);
@@ -313,7 +302,6 @@ const getFeatureStyle = (
         };
     }
 
-    // Si no hay datos disponibles, todas las localidades deben ser transparentes
     if (Object.keys(sums).length === 0) {
         return {
             fillColor: 'transparent',
@@ -325,15 +313,9 @@ const getFeatureStyle = (
         };
     }
     
-    // Lógica de filtrado:
-    // - Si NO hay localidades seleccionadas: mostrar TODAS las localidades (comportamiento por defecto)
-    // - Si HAY localidades seleccionadas: mostrar TODAS las localidades también (no despintar)
     let bestMatch: string | null = null;
-    
-    // Siempre buscar coincidencia en todos los datos disponibles para mantener el mapa pintado
     bestMatch = findBestMatch(mainLocalityName, Object.keys(sums));
     
-    // Si no hay coincidencia, la localidad debe ser transparente
     if (!bestMatch) {
         return {
             fillColor: 'transparent',
@@ -345,10 +327,7 @@ const getFeatureStyle = (
         };
     }
 
-    // Obtener el valor para la localidad encontrada
     const value: number = sums[bestMatch];
-
-    // Si el valor es inválido o cero, la localidad debe ser transparente
     if (value === undefined || value === null || isNaN(value) || value <= 0) {
         return {
             fillColor: 'transparent',
@@ -360,10 +339,7 @@ const getFeatureStyle = (
         };
     }
 
-    // Si hay datos, pintar según el valor
     const color: string = getColor(value, minMax.min, minMax.max);
-
-    // Marcar esta localidad como pintada
     paintedLocalities.add(normalizedName);
 
     return {
@@ -376,11 +352,9 @@ const getFeatureStyle = (
     };
 };
 
-// Función para resetear el estado de pintado (llamar antes de procesar nuevos datos)
 export const resetPaintingState = (): void => {
     paintedLocalities.clear();
 };
-
 
 
 

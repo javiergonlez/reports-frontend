@@ -51,5 +51,4 @@ const useS3Data = (autoFetch = true) => {
     refreshIfStale,
   };
 }; 
-
 export { useS3Data }; 

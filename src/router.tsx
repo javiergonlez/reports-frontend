@@ -25,7 +25,7 @@ const DashboardRoutes = (): JSX.Element => {
       <Route element={<ProtectedLayout><AppLayout /></ProtectedLayout>}>
         <Route path="/" element={<App />} index />
         <Route path="/reportes/tabla" element={
-          <ThirdDashboard
+          <FirstDashboard
             dateRange={[
               dateRange[0] ? new Date(dateRange[0]) : null,
               dateRange[1] ? new Date(dateRange[1]) : null,
@@ -34,7 +34,7 @@ const DashboardRoutes = (): JSX.Element => {
         }
         />
         <Route path="/reportes/mapa" element={
-          <ThirdDashboard
+          <FirstDashboard
             dateRange={[
               dateRange[0] ? new Date(dateRange[0]) : null,
               dateRange[1] ? new Date(dateRange[1]) : null,

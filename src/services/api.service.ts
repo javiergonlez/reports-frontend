@@ -100,5 +100,5 @@ const getS3DataJson = async (): Promise<S3Response> => {
     throw error;
   }
 };
-
 export { getDashboardFiles, getS3DataJson };
+

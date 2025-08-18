@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------------------------------------------------------
+
 
 import React, { useEffect, useState, useCallback } from "react";
 import "leaflet/dist/leaflet.css";
@@ -23,10 +23,11 @@ import type {
     MinMaxValues,
     LabelData,
     MapProps,
-    PolygonLabelsProps
+    PolygonLabelsProps,
+    CsvRow
 } from "../types";
 
-//---------------------------------------------------------------------------------------------------------------------------
+
 
 const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProps): React.JSX.Element => {
     const [labels, setLabels] = useState<LabelData[]>([]);
@@ -35,17 +36,15 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
         if (!geojson) return;
 
         const newLabels: LabelData[] = [];
-        const processedNames = new Set<string>(); // Para evitar duplicados
+        const processedNames: Set<string> = new Set<string>(); 
 
-        // Aplicar los mismos filtros que en el mapa principal
         const filteredFeatures = geojson.features.filter(
             (f: any): boolean =>
                 f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
         );
 
-        // Función para determinar si es una entidad administrativa pura
         const isPureAdministrativeEntity = (name: string): boolean => {
-            const pureAdministrativeEntities = [
+            const pureAdministrativeEntities: string[] = [
                 'Buenos Aires', 'Provincia de Buenos Aires', 'Ciudad Autónoma de Buenos Aires',
                 'Provincia', 'Province', 'State', 'Departamento', 'Department'
             ];
@@ -55,9 +54,9 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
             );
         };
 
-        // Función para determinar si es una provincia argentina específica
+        
         const isArgentineProvince = (name: string): boolean => {
-            const argentineProvinces = [
+            const argentineProvinces: string[] = [
                 'La Rioja', 'San Luis', 'San Juan', 'Mendoza', 'La Pampa', 'Santa Fe',
                 'Santiago del Estero', 'Catamarca', 'Río Negro', 'Chubut', 'Santa Cruz',
                 'Tierra del Fuego', 'Entre Ríos', 'Corrientes', 'Misiones', 'Chaco',
@@ -73,18 +72,15 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
             .filter((feature): feature is Feature<Geometry, GeoJsonProperties> => feature.properties !== null)
             .filter((feature: Feature<Geometry, GeoJsonProperties>): boolean => {
                 const name: string = (feature.properties?.departamento || feature.properties?.name || feature.properties?.nam || '').toString();
-
-                // Si es una entidad administrativa pura, excluirla
+                
                 if (isPureAdministrativeEntity(name)) {
                     return false;
                 }
-
-                // Si es una provincia argentina específica, excluirla
+                
                 if (isArgentineProvince(name)) {
                     return false;
                 }
 
-                // Si el nombre contiene comas, verificar que la primera parte no sea una entidad administrativa
                 if (name.includes(',')) {
                     const firstPart = name.split(',')[0].trim();
                     if (isPureAdministrativeEntity(firstPart)) {
@@ -98,19 +94,17 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
                 const props: GeoJsonProperties = feature.properties || {};
                 const rawNombre: string = String(props.departamento || props.name || props.nam || '');
 
-                // Extraer el nombre principal de la localidad
-                const mainLocalityName = extractMainLocalityName(rawNombre);
-                const normalizedName = normalizeName(mainLocalityName);
+                
+                const mainLocalityName: string = extractMainLocalityName(rawNombre);
+                const normalizedName: string = normalizeName(mainLocalityName);
 
-                // Evitar duplicados basándose en el nombre normalizado
                 if (processedNames.has(normalizedName)) {
                     return;
                 }
                 processedNames.add(normalizedName);
-
-                // Usar la misma lógica de búsqueda que en getFeatureStyle
-                const availableNames = Object.keys(sums);
-                const bestMatch = findBestMatch(mainLocalityName, availableNames);
+                
+                const availableNames: string[] = Object.keys(sums);
+                const bestMatch: string | null = findBestMatch(mainLocalityName, availableNames);
                 let value: number | undefined = undefined;
 
                 if (bestMatch && sums[bestMatch] !== undefined) {
@@ -151,13 +145,13 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
         <>
             {labels
                 .filter((label: LabelData): boolean => {
-                    if (!Boolean(hoveredMunicipality) || hoveredMunicipality === null) {
+                    if (!hoveredMunicipality || hoveredMunicipality === null) {
                         return false;
                     }
 
-                    // Normalizar el nombre del label para comparar con hoveredMunicipality
-                    const normalizedLabelName = normalizeName(label.nombre);
-                    const isMatch = normalizedLabelName === hoveredMunicipality;
+                    
+                    const normalizedLabelName: string = normalizeName(label.nombre);
+                    const isMatch: boolean = normalizedLabelName === hoveredMunicipality;
 
                     return isMatch && label.value !== undefined && label.value > 0;
                 })
@@ -201,11 +195,6 @@ const PolygonLabels = ({ geojson, sums, hoveredMunicipality }: PolygonLabelsProp
 
 const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps): React.JSX.Element => {
     const mapConfig = getActiveMapConfig();
-    
-    if (!mapConfig.isActive) {
-        // Using OpenStreetMap as map provider (Stadia Maps API key not configured)
-    }
-    
     const center: LatLngExpression = [-34.5896, -58.6276];
 
     const { data, error, fetchS3Data } = useS3DataStore();
@@ -213,15 +202,13 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
     const [sums, setSums] = useState<SumsByLocality>({});
     const [minMax, setMinMax] = useState<MinMaxValues>({ min: 0, max: 0 });
     const [hoveredMunicipality, setHoveredMunicipality] = useState<string | null>(null);
-
-    // Cargar datos del store al montar el componente
+    
     useEffect((): void => {
         if (!data) {
             fetchS3Data();
         }
     }, [data, fetchS3Data]);
-
-    // Cargar GeoJSON
+    
     useEffect((): void => {
         fetch('/argentina.json')
             .then((res: Response) => res.json())
@@ -229,75 +216,66 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
                 setGeojson(data);
             })
             .catch((): void => {
-                // Error cargando GeoJSON
+                
             });
     }, []);
-
-    // Procesar datos cuando cambien
+    
     useEffect((): void => {
         if (!data?.data) return;
 
-        // Si no hay billingData, no mostrar nada en el mapa
+        
         if (!billingData || billingData.length === 0) {
             setSums({});
             setMinMax({ min: 0, max: 0 });
             return;
         }
-
-
-
-        // Lógica de procesamiento:
-        // - Si NO hay localidades seleccionadas: procesar TODOS los datos (comportamiento por defecto)
-        // - Si HAY localidades seleccionadas: procesar solo esos datos filtrados
+        
         if (selectedLocalities && selectedLocalities.length > 0) {
-            // Modo filtrado: procesar solo datos de las localidades seleccionadas
-            const filteredData = billingData.filter(row => {
-                // CORREGIDO: usar patient_department en lugar de localidad para ser consistente con processBillingData
+            
+            const filteredData: CsvRow[] = billingData.filter((row: CsvRow) => {
+                
                 if (!row.patient_department) return false;
                 return selectedLocalities.some(selected =>
                     normalizeName(selected) === normalizeName(row.patient_department || '')
                 );
             });
 
-
-
             const { sums: newSums, minMax: newMinMax } = processBillingData(filteredData);
 
             setSums(newSums);
             setMinMax(newMinMax);
         } else {
-            // Modo por defecto: procesar todos los datos para mostrar todas las localidades
+            
             const { sums: newSums, minMax: newMinMax } = processBillingData(billingData);
 
             setSums(newSums);
             setMinMax(newMinMax);
         }
 
-        // Debug: mostrar nombres del GeoJSON y generar reporte de mapeo
+        
         if (geojson && data?.data) {
-            // Resetear el estado de pintado antes de procesar nuevos datos
+            
             resetPaintingState();
         }
     }, [data, billingData, geojson, selectedLocalities]);
 
-    // Resetear estado de pintado cuando cambien las localidades seleccionadas
+    
     useEffect((): void => {
         resetPaintingState();
     }, [selectedLocalities]);
 
-    // Función para extraer el nombre principal de la localidad
+    
     const extractMainLocalityName = (fullName: string): string => {
         if (!fullName) return '';
 
-        // Si contiene comas, tomar solo la primera parte
+        
         if (fullName.includes(',')) {
             return fullName.split(',')[0].trim();
         }
 
         return fullName;
     };
-
-    // Función para manejar eventos de features
+    
     const handleEachFeature = useCallback((
         feature: Feature<Geometry, GeoJsonProperties>,
         layer: Layer
@@ -307,9 +285,8 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
             feature.properties?.name ||
             feature.properties?.nam || ''
         );
-
-        // Extraer el nombre principal de la localidad
-        const mainLocalityName = extractMainLocalityName(rawDepartamento);
+        
+        const mainLocalityName: string = extractMainLocalityName(rawDepartamento);
         const nombre: string = normalizeName(mainLocalityName);
 
         layer.on({
@@ -317,17 +294,15 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
             mouseout: (): void => setHoveredMunicipality(null),
             click: (): void => {
                 if (onLocalityClick) {
-                    // Buscar el mejor match en los datos disponibles
-                    const availableNames = Object.keys(sums);
-                    const bestMatch = findBestMatch(mainLocalityName, availableNames);
-
-
+                    
+                    const availableNames: string[] = Object.keys(sums);
+                    const bestMatch: string | null = findBestMatch(mainLocalityName, availableNames);
 
                     if (bestMatch) {
-                        // Pasar el nombre ORIGINAL del GeoJSON, no el normalizado
+                        
                         onLocalityClick(mainLocalityName);
                     } else {
-                        // Si no hay match, pasar el nombre original del GeoJSON como fallback
+                        
                         onLocalityClick(mainLocalityName);
                     }
                 }
@@ -335,12 +310,9 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
         });
     }, [onLocalityClick, sums]);
 
-    // Función para estilizar features
     const styleFeature = useCallback((feature: Feature<Geometry, GeoJsonProperties> | undefined): Record<string, any> => {
         return getFeatureStyle(feature, sums, minMax);
     }, [sums, minMax]);
-
-
 
     if (error) {
         return (
@@ -374,69 +346,58 @@ const MapView = ({ onLocalityClick, billingData, selectedLocalities }: MapProps)
                     (f: Feature<Geometry, GeoJsonProperties>): boolean =>
                         f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
                 );
-
-                // Función para determinar si es una entidad administrativa pura
+                
                 const isPureAdministrativeEntity = (name: string): boolean => {
-                    const pureAdministrativeEntities = [
+                    const pureAdministrativeEntities: string[] = [
                         'Buenos Aires', 'Provincia de Buenos Aires', 'Ciudad Autónoma de Buenos Aires',
                         'Provincia', 'Province', 'State', 'Departamento', 'Department'
                     ];
 
-                    // Verificar si el nombre es exactamente una entidad administrativa pura
-                    return pureAdministrativeEntities.some(entity =>
+                    return pureAdministrativeEntities.some((entity: string): boolean =>
                         name.toLowerCase().trim() === entity.toLowerCase()
                     );
                 };
-
-                // Función para determinar si es una provincia argentina específica
+                
                 const isArgentineProvince = (name: string): boolean => {
-                    const argentineProvinces = [
+                    const argentineProvinces: string[] = [
                         'La Rioja', 'San Luis', 'San Juan', 'Mendoza', 'La Pampa', 'Santa Fe',
                         'Santiago del Estero', 'Catamarca', 'Río Negro', 'Chubut', 'Santa Cruz',
                         'Tierra del Fuego', 'Entre Ríos', 'Corrientes', 'Misiones', 'Chaco',
                         'Jujuy', 'Tucumán', 'Neuquén', 'Salta', 'Formosa'
                     ];
 
-                    return argentineProvinces.some(province =>
+                    return argentineProvinces.some((province: string): boolean =>
                         name.toLowerCase().includes(province.toLowerCase())
                     );
                 };
-
-                // Filtrar features que no deberían mostrarse (entidades administrativas grandes)
-                const processedLocalities = new Set<string>(); // Para evitar duplicados
+                
+                const processedLocalities = new Set<string>(); 
 
                 const localFeatures = filteredFeatures.filter((f: Feature<Geometry, GeoJsonProperties>): boolean => {
-                    const name = String(f.properties?.departamento || f.properties?.name || f.properties?.nam || '');
-
-                    // Si es una entidad administrativa pura, excluirla
+                    const name: string = String(f.properties?.departamento || f.properties?.name || f.properties?.nam || '');
+                    
                     if (isPureAdministrativeEntity(name)) {
                         return false;
                     }
-
-                    // Si es una provincia argentina específica, excluirla
+                    
                     if (isArgentineProvince(name)) {
                         return false;
                     }
 
-                    // Si el nombre contiene comas (como "Moreno, Buenos Aires, Argentina"),
-                    // verificar que la primera parte no sea una entidad administrativa
                     if (name.includes(',')) {
-                        const firstPart = name.split(',')[0].trim();
+                        const firstPart: string = name.split(',')[0].trim();
                         if (isPureAdministrativeEntity(firstPart)) {
                             return false;
                         }
                     }
+                    
+                    const mainLocalityName: string = extractMainLocalityName(name);
+                    const normalizedName: string = normalizeName(mainLocalityName);
 
-                    // Extraer el nombre principal de la localidad
-                    const mainLocalityName = extractMainLocalityName(name);
-                    const normalizedName = normalizeName(mainLocalityName);
-
-                    // Si ya procesamos esta localidad, excluirla (evitar duplicados)
                     if (processedLocalities.has(normalizedName)) {
                         return false;
                     }
-
-                    // Marcar esta localidad como procesada
+                    
                     processedLocalities.add(normalizedName);
 
                     return true;
