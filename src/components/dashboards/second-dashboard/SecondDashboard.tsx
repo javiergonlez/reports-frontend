@@ -68,21 +68,25 @@ const formatNumberWithOneDecimal = (value: number): string => {
 const processData = (...lists: MostPrescribedMeds[][]): { monto: string; porcentaje: string; cantidad: string } => {
   const items: MostPrescribedMeds[] = lists.flat();
 
-  
+  // Si no hay items, retornar valores por defecto
+  if (items.length === 0) {
+    return { monto: 'No hay datos', porcentaje: 'No hay datos', cantidad: 'No hay datos' };
+  }
 
+  // Calcular totales directamente desde los valores numéricos almacenados
   const totalAmount: number = items.reduce((acc: number, item: MostPrescribedMeds): number => {
-    const num: number = parseMonto(item.monto);
-    return acc + (isNaN(num) ? 0 : num);
+    // Usar el valor numérico original almacenado en el item
+    return acc + (item.montoNumero || 0);
   }, 0);
 
   const totalPercentage: number = items.reduce((acc: number, item: MostPrescribedMeds): number => {
-    const num: number = parseFloat(item.porcentaje.replace(/[^\d,.-]/g, '').replace(',', '.'));
-    return acc + (isNaN(num) ? 0 : num);
+    // Usar el valor numérico original almacenado en el item
+    return acc + (item.porcentajeNumero || 0);
   }, 0);
 
   const totalQuantity: number = items.reduce((acc: number, item: MostPrescribedMeds): number => {
-    const num: number = parseFloat(item.cantidad.replace(/\./g, '').replace(',', '.'));
-    return acc + (isNaN(num) ? 0 : num);
+    // Usar el valor numérico original almacenado en el item
+    return acc + (item.cantidadNumero || 0);
   }, 0);
 
   const formattedAmount: string = hasValidData(totalAmount) ? formatCurrencyNormalized(totalAmount) : 'No hay datos';
@@ -202,8 +206,11 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
       const result: MostPrescribedMeds[] = Array.from(grouped.entries()).map(([nombre, g]: [string, { cantidad: number, monto: number, porcentaje: number, fecha: string }]): MostPrescribedMeds => ({
         nombre,
         monto: hasValidData(g.monto) ? formatCurrencyNormalized(g.monto) : 'No hay datos',
+        montoNumero: g.monto,
         porcentaje: hasValidData(g.porcentaje) ? `${formatNumberNormalized(g.porcentaje)} %` : 'No hay datos',
+        porcentajeNumero: g.porcentaje,
         cantidad: hasValidData(g.cantidad) ? formatNumberNormalized(g.cantidad) : 'No hay datos',
+        cantidadNumero: g.cantidad,
         fecha: g.fecha,
       }));
 

@@ -209,8 +209,11 @@ export type RecipeValuesRow = {
 export type MostPrescribedMeds = {
   nombre: string;
   monto: string;
+  montoNumero: number;
   porcentaje: string;
+  porcentajeNumero: number;
   cantidad: string;
+  cantidadNumero: number;
   fecha: string;
 }
 
