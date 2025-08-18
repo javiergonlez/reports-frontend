@@ -538,15 +538,15 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
         {variationRecetasAuditadas !== null && (metrics.recetasAuditadas > 0 || previousRecetasAuditadas > 0) && (
           <div className={`${styles.variationBadge} ${styles.variationBadgeBlue} ${variationRecetasAuditadas >= 0 ? styles.variationBadgePositive : styles.variationBadgeNegative}`}>
             {variationRecetasAuditadas > 0 ? '+' : ''}{variationRecetasAuditadas}%
-            <IconDecrease style={{ height: '1.5rem' }} />
+            {variationRecetasAuditadas >= 0 ? <IconDecrease style={{ height: '1.5rem' }} /> : <IconIncrease style={{ height: '1.5rem' }} />}
           </div>
         )}
       </div>
 
       <div className={`${styles["grid-item"]} ${styles["metric-card"]} ${styles["metric-card-left"]} ${styles.div2}`} style={{ position: 'relative' }}>
         <p className={styles['text']}>Recetas con Desvío Detectados</p>
-        <div className={styles.iconValueWrapperLeft}>
-          <IconDanger />
+        <div className={styles.iconValueContainer}>
+          <IconDanger style={{ marginRight: '0.5rem' }} />
           <p className={styles['value']}>{
             isLoading
               ? 'Cargando...'
@@ -556,7 +556,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
         {variationRecetasConDesvio !== null && (metrics.recetasConDesvio > 0 || previousRecetasConDesvio > 0) && (
           <div className={`${styles.variationBadge} ${styles.variationBadgePink} ${variationRecetasConDesvio >= 0 ? styles.variationBadgePositive : styles.variationBadgeNegative}`}>
             {variationRecetasConDesvio > 0 ? '+' : ''}{variationRecetasConDesvio}%
-            <IconIncrease style={{ height: '1.5rem' }} />
+            {variationRecetasConDesvio >= 0 ? <IconDecrease style={{ height: '1.5rem' }} /> : <IconIncrease style={{ height: '1.5rem' }} />}
           </div>
         )}
       </div>
@@ -572,7 +572,7 @@ const SecondDashboard: React.FC<SecondDashboardProps> = ({ dateRange }) => {
         {variationRecetasConDesvio !== null && (metrics.recetasConDesvio > 0 || previousRecetasConDesvio > 0) && (
           <div className={`${styles.variationBadge} ${styles.variationBadgePurple} ${variationRecetasConDesvio >= 0 ? styles.variationBadgePositive : styles.variationBadgeNegative}`}>
             {variationRecetasConDesvio > 0 ? '+' : ''}{variationRecetasConDesvio}%
-            <IconIncrease style={{ height: '1.5rem' }} />
+            {variationRecetasConDesvio >= 0 ? <IconDecrease style={{ height: '1.5rem' }} /> : <IconIncrease style={{ height: '1.5rem' }} />}
           </div>
         )}
       </div>

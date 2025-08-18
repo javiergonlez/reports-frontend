@@ -114,7 +114,7 @@ const LocalityFilter = () => {
                 No se encontraron localidades que coincidan con "{searchTerm}"
               </div>
             ) : (
-              filteredLocalidadesData.map((localidad) => (
+              filteredLocalidadesData.map((localidad: FilterItem) => (
                 <label key={localidad.value} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -127,16 +127,16 @@ const LocalityFilter = () => {
                     <input
                       type="checkbox"
                       checked={selectedLocalities.includes(localidad.value)}
-                      onChange={(e) => {
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         if (e.target.checked) {
                           setSelectedLocalities([...selectedLocalities, localidad.value]);
                         } else {
-                          setSelectedLocalities(selectedLocalities.filter(v => v !== localidad.value));
+                          setSelectedLocalities(selectedLocalities.filter((v: string) => v !== localidad.value));
                         }
                       }}
                       style={{ marginRight: '8px' }}
                     />
-                    <span  style={{fontSize: '1rem'}}>{localidad.label}</span>
+                    <span  style={{fontSize: '1rem'}}>{localidad.label.split(',')[0]}</span>
                   </div>
                   <span style={{ fontSize: '1rem', color: '#666' }}>{localidad.gasto}</span>
                 </label>

@@ -364,7 +364,7 @@
 .iconValueContainer {
     width: 100%;
     display: flex;
-    padding-left: 10%;
+    justify-content: center;
 }
 
 .iconValueWrapper {
@@ -377,7 +377,6 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
-    padding-left: 10%;
 }
 
 .metricItemContainer {
